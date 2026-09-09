@@ -1,13 +1,16 @@
-import services.match_service
+from services import match_service
+from repositories.matches_repository import Match, MatchesRepository
 from entities.match import *
-class MatchController:
-    def __init__(self):
-        self.service = services.match_service.MatchService()
+from fastapi import APIRouter
+from fastapi import HTTPException
 
-    def match_result(self, match:Match):
-        winner = match.result
-        points = match.goal_difference
-        if winner is not None:
-            self.service.update_points_to_winner(3, winner)
-        else:
-            self.service.update_points_to_both(1, match.teamA, match.teamB)
+matches_repo = MatchesRepository()
+
+router = APIRouter(
+    prefix="/matchs"
+)
+
+@router.get("/{id_match}")
+def get_match_result(id_match: int):
+    match = matches_repo.get_match_by_id(id_match) # buscar el partido en la BD
+    return match_service.match_result(match)
