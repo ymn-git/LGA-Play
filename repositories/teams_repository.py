@@ -33,58 +33,58 @@ class TeamsRepository:
 
     def update_points_to_winner(self, points, winner_id):
         for team in self.team_list:
-            if team.id == winner_id:
+            if team.id_team == winner_id:
                 team.points += points
 
     def update_wins_to_winner(self, winner_id):
         for team in self.team_list:
-            if team.id == winner_id:
+            if team.id_team == winner_id:
                 team.wins +=1
 
     def update_losses_to_looser(self, looser_id):
         for team in self.team_list:
-            if team.id == looser_id:
+            if team.id_team == looser_id:
                 team.losses +=1
 
     def update_draw_to_both(self, teamA_id, teamB_id):
         for teamA in self.team_list:
-            if teamA.id == teamA_id:
+            if teamA.id_team == teamA_id:
                 teamA.draws +=1
         for teamB in self.team_list:
-            if teamB.id == teamB_id:
+            if teamB.id_team == teamB_id:
                 teamB.draws +=1
 
     def update_points_to_both_teams(self, points, teamA_id, teamB_id):
         for teamA in self.team_list:
-            if teamA.id == teamA_id:
+            if teamA.id_team == teamA_id:
                 teamA.points += points
         for teamB in self.team_list:
-            if teamB.id == teamB_id:
+            if teamB.id_team == teamB_id:
                 teamB.points += points
 
     def update_positive_goal_difference (self, difference, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.goalDifference += difference
 
     def update_negative_goal_difference (self, difference, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.goalDifference -= difference
 
     def add_win (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.wins += 1
 
     def add_loss (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.losses += 1
 
     def add_draw (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.draws += 1
 
 

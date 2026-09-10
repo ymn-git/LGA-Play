@@ -7,7 +7,7 @@ def get_all_teams():
 
 def get_team_by_id(id_team: int):
     for team in teams_repo.team_list:
-        if team.id == id_team:
+        if team.id_team == id_team:
             return team
     raise ValueError("Team not found")
 
