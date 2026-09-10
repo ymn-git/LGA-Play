@@ -1,4 +1,3 @@
-from msilib.schema import Property
 
 from entities.team import Team
 from typing import List
