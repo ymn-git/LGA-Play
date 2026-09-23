@@ -1,16 +1,24 @@
+from fastapi import APIRouter, HTTPException
 from services import match_service
-from repositories.matches_repository import Match, MatchesRepository
-from entities.match import *
-from fastapi import APIRouter
-from fastapi import HTTPException
 
-matches_repo = MatchesRepository()
-
-router = APIRouter(
-    prefix="/matchs"
-)
+router = APIRouter(prefix="/matchs")
 
 @router.get("/{id_match}")
 def get_match_result(id_match: int):
-    match = matches_repo.get_match_by_id(id_match) # buscar el partido en la BD
-    return match_service.match_result(match)
+    try:
+        return match_service.get_match_result(id_match)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/matchday/{matchday}")
+def get_matches_by_matchday(matchday: int):
+    return match_service.get_matches_by_matchday(matchday)
+
+@router.patch("/{id_match}/result")
+def update_match_result(id_match: int, payload: dict):
+    try:
+        return match_service.update_match_result(id_match, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+

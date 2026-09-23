@@ -5,180 +5,180 @@ class MatchesRepository:
     def __init__(self):
         self.matches = [
             # FECHA 1
-            Match(1, 1, 7, 1, []),
-            Match(2, 4, 8, 1, []),
-            Match(3, 5, 9, 1, []),
-            Match(4, 6, 10, 1, []),
-            Match(5, 12, 11, 1, []),
-            Match(6, 3, 2, 1, []),
+            Match(1, 1, 7, 1, 2026),
+            Match(2, 4, 8, 1, 2026),
+            Match(3, 5, 9, 1, 2026),
+            Match(4, 6, 10, 1, 2026),
+            Match(5, 12, 11, 1, 2026),
+            Match(6, 3, 2, 1, 2026),
 
             # FECHA 2
-            Match(7, 2, 11, 2, []),
-            Match(8, 10, 12, 2, []),
-            Match(9, 9, 6, 2, []),
-            Match(10, 8, 5, 2, []),
-            Match(11, 7, 4, 2, []),
-            Match(12, 3, 1, 2, []),
+            Match(7, 2, 11, 2, 2026),
+            Match(8, 10, 12, 2, 2026),
+            Match(9, 9, 6, 2, 2026),
+            Match(10, 8, 5, 2, 2026),
+            Match(11, 7, 4, 2, 2026),
+            Match(12, 3, 1, 2, 2026),
 
             # FECHA 3
-            Match(13, 1, 2, 3, []),
-            Match(14, 4, 3, 3, []),
-            Match(15, 5, 7, 3, []),
-            Match(16, 6, 8, 3, []),
-            Match(17, 12, 9, 3, []),
-            Match(18, 11, 10, 3, []),
+            Match(13, 1, 2, 3, 2026),
+            Match(14, 4, 3, 3, 2026),
+            Match(15, 5, 7, 3, 2026),
+            Match(16, 6, 8, 3, 2026),
+            Match(17, 12, 9, 3, 2026),
+            Match(18, 11, 10, 3, 2026),
 
             # FECHA 4
-            Match(19, 2, 10, 4, []),
-            Match(20, 9, 11, 4, []),
-            Match(21, 8, 12, 4, []),
-            Match(22, 7, 6, 4, []),
-            Match(23, 3, 5, 4, []),
-            Match(24, 4, 1, 4, []),
+            Match(19, 2, 10, 4, 2026),
+            Match(20, 9, 11, 4, 2026),
+            Match(21, 8, 12, 4, 2026),
+            Match(22, 7, 6, 4, 2026),
+            Match(23, 3, 5, 4, 2026),
+            Match(24, 4, 1, 4, 2026),
 
             # FECHA 5
-            Match(25, 4, 2, 5, []),
-            Match(26, 1, 5, 5, []),
-            Match(27, 6, 3, 5, []),
-            Match(28, 11, 8, 5, []),
-            Match(29, 10, 9, 5, []),
-            Match(30, 12, 7, 5, []),
+            Match(25, 4, 2, 5, 2026),
+            Match(26, 1, 5, 5, 2026),
+            Match(27, 6, 3, 5, 2026),
+            Match(28, 11, 8, 5, 2026),
+            Match(29, 10, 9, 5, 2026),
+            Match(30, 12, 7, 5, 2026),
 
             # FECHA 6
-            Match(31, 2, 9, 6, []),
-            Match(32, 8, 10, 6, []),
-            Match(33, 7, 11, 6, []),
-            Match(34, 3, 12, 6, []),
-            Match(35, 6, 1, 6, []),
-            Match(36, 4, 5, 6, []),
+            Match(31, 2, 9, 6, 2026),
+            Match(32, 8, 10, 6, 2026),
+            Match(33, 7, 11, 6, 2026),
+            Match(34, 3, 12, 6, 2026),
+            Match(35, 6, 1, 6, 2026),
+            Match(36, 4, 5, 6, 2026),
 
             # FECHA 7
-            Match(37, 5, 2, 7, []),
-            Match(38, 6, 4, 7, []),
-            Match(39, 1, 12, 7, []),
-            Match(40, 11, 3, 7, []),
-            Match(41, 10, 7, 7, []),
-            Match(42, 9, 8, 7, []),
+            Match(37, 5, 2, 7, 2026),
+            Match(38, 6, 4, 7, 2026),
+            Match(39, 1, 12, 7, 2026),
+            Match(40, 11, 3, 7, 2026),
+            Match(41, 10, 7, 7, 2026),
+            Match(42, 9, 8, 7, 2026),
 
             # FECHA 8
-            Match(43, 8, 2, 8, []),
-            Match(44, 7, 9, 8, []),
-            Match(45, 3, 10, 8, []),
-            Match(46, 1, 11, 8, []),
-            Match(47, 4, 12, 8, []),
-            Match(48, 5, 6, 8, []),
+            Match(43, 8, 2, 8, 2026),
+            Match(44, 7, 9, 8, 2026),
+            Match(45, 3, 10, 8, 2026),
+            Match(46, 1, 11, 8, 2026),
+            Match(47, 4, 12, 8, 2026),
+            Match(48, 5, 6, 8, 2026),
 
             # FECHA 9
-            Match(49, 6, 2, 9, []),
-            Match(50, 12, 5, 9, []),
-            Match(51, 11, 4, 9, []),
-            Match(52, 10, 1, 9, []),
-            Match(53, 9, 3, 9, []),
-            Match(54, 8, 7, 9, []),
+            Match(49, 6, 2, 9, 2026),
+            Match(50, 12, 5, 9, 2026),
+            Match(51, 11, 4, 9, 2026),
+            Match(52, 10, 1, 9, 2026),
+            Match(53, 9, 3, 9, 2026),
+            Match(54, 8, 7, 9, 2026),
 
             # FECHA 10
-            Match(55, 2, 7, 10, []),
-            Match(56, 3, 8, 10, []),
-            Match(57, 1, 9, 10, []),
-            Match(58, 4, 10, 10, []),
-            Match(59, 5, 11, 10, []),
-            Match(60, 6, 12, 10, []),
+            Match(55, 2, 7, 10, 2026),
+            Match(56, 3, 8, 10, 2026),
+            Match(57, 1, 9, 10, 2026),
+            Match(58, 4, 10, 10, 2026),
+            Match(59, 5, 11, 10, 2026),
+            Match(60, 6, 12, 10, 2026),
 
             # FECHA 11
-            Match(61, 12, 2, 11, []),
-            Match(62, 11, 6, 11, []),
-            Match(63, 10, 5, 11, []),
-            Match(64, 9, 4, 11, []),
-            Match(65, 8, 1, 11, []),
-            Match(66, 7, 3, 11, []),
+            Match(61, 12, 2, 11, 2026),
+            Match(62, 11, 6, 11, 2026),
+            Match(63, 10, 5, 11, 2026),
+            Match(64, 9, 4, 11, 2026),
+            Match(65, 8, 1, 11, 2026),
+            Match(66, 7, 3, 11, 2026),
 
             # FECHA 12 (inverso FECHA 1)
-            Match(67, 7, 1, 12, []),
-            Match(68, 8, 4, 12, []),
-            Match(69, 9, 5, 12, []),
-            Match(70, 10, 6, 12, []),
-            Match(71, 11, 12, 12, []),
-            Match(72, 2, 3, 12, []),
+            Match(67, 7, 1, 12, 2026),
+            Match(68, 8, 4, 12, 2026),
+            Match(69, 9, 5, 12, 2026),
+            Match(70, 10, 6, 12, 2026),
+            Match(71, 11, 12, 12, 2026),
+            Match(72, 2, 3, 12, 2026),
 
             # FECHA 13 (inverso FECHA 2)
-            Match(73, 11, 2, 13, []),
-            Match(74, 12, 10, 13, []),
-            Match(75, 6, 9, 13, []),
-            Match(76, 5, 8, 13, []),
-            Match(77, 4, 7, 13, []),
-            Match(78, 1, 3, 13, []),
+            Match(73, 11, 2, 13, 2026),
+            Match(74, 12, 10, 13, 2026),
+            Match(75, 6, 9, 13, 2026),
+            Match(76, 5, 8, 13, 2026),
+            Match(77, 4, 7, 13, 2026),
+            Match(78, 1, 3, 13, 2026),
 
             # FECHA 14 (inverso FECHA 3)
-            Match(79, 2, 1, 14, []),
-            Match(80, 3, 4, 14, []),
-            Match(81, 7, 5, 14, []),
-            Match(82, 8, 6, 14, []),
-            Match(83, 9, 12, 14, []),
-            Match(84, 10, 11, 14, []),
+            Match(79, 2, 1, 14, 2026),
+            Match(80, 3, 4, 14, 2026),
+            Match(81, 7, 5, 14, 2026),
+            Match(82, 8, 6, 14, 2026),
+            Match(83, 9, 12, 14, 2026),
+            Match(84, 10, 11, 14, 2026),
 
             # FECHA 15 (inverso FECHA 4)
-            Match(85, 10, 2, 15, []),
-            Match(86, 11, 9, 15, []),
-            Match(87, 12, 8, 15, []),
-            Match(88, 6, 7, 15, []),
-            Match(89, 5, 3, 15, []),
-            Match(90, 1, 4, 15, []),
+            Match(85, 10, 2, 15, 2026),
+            Match(86, 11, 9, 15, 2026),
+            Match(87, 12, 8, 15, 2026),
+            Match(88, 6, 7, 15, 2026),
+            Match(89, 5, 3, 15, 2026),
+            Match(90, 1, 4, 15, 2026),
 
             # FECHA 16 (inverso FECHA 5)
-            Match(91, 2, 4, 16, []),
-            Match(92, 5, 1, 16, []),
-            Match(93, 3, 6, 16, []),
-            Match(94, 8, 11, 16, []),
-            Match(95, 9, 10, 16, []),
-            Match(96, 7, 12, 16, []),
+            Match(91, 2, 4, 16, 2026),
+            Match(92, 5, 1, 16, 2026),
+            Match(93, 3, 6, 16, 2026),
+            Match(94, 8, 11, 16, 2026),
+            Match(95, 9, 10, 16, 2026),
+            Match(96, 7, 12, 16, 2026),
 
             # FECHA 17 (inverso FECHA 6)
-            Match(97, 9, 2, 17, []),
-            Match(98, 10, 8, 17, []),
-            Match(99, 11, 7, 17, []),
-            Match(100, 12, 3, 17, []),
-            Match(101, 1, 6, 17, []),
-            Match(102, 5, 4, 17, []),
+            Match(97, 9, 2, 17, 2026),
+            Match(98, 10, 8, 17, 2026),
+            Match(99, 11, 7, 17, 2026),
+            Match(100, 12, 3, 17, 2026),
+            Match(101, 1, 6, 17, 2026),
+            Match(102, 5, 4, 17, 2026),
 
             # FECHA 18 (inverso FECHA 7)
-            Match(103, 2, 5, 18, []),
-            Match(104, 4, 6, 18, []),
-            Match(105, 12, 1, 18, []),
-            Match(106, 3, 11, 18, []),
-            Match(107, 7, 10, 18, []),
-            Match(108, 8, 9, 18, []),
+            Match(103, 2, 5, 18, 2026),
+            Match(104, 4, 6, 18, 2026),
+            Match(105, 12, 1, 18, 2026),
+            Match(106, 3, 11, 18, 2026),
+            Match(107, 7, 10, 18, 2026),
+            Match(108, 8, 9, 18, 2026),
 
             # FECHA 19 (inverso FECHA 8)
-            Match(109, 2, 8, 19, []),
-            Match(110, 9, 7, 19, []),
-            Match(111, 10, 3, 19, []),
-            Match(112, 11, 1, 19, []),
-            Match(113, 12, 4, 19, []),
-            Match(114, 6, 5, 19, []),
+            Match(109, 2, 8, 19, 2026),
+            Match(110, 9, 7, 19, 2026),
+            Match(111, 10, 3, 19, 2026),
+            Match(112, 11, 1, 19, 2026),
+            Match(113, 12, 4, 19, 2026),
+            Match(114, 6, 5, 19, 2026),
 
             # FECHA 20 (inverso FECHA 9)
-            Match(115, 2, 6, 20, []),
-            Match(116, 5, 12, 20, []),
-            Match(117, 4, 11, 20, []),
-            Match(118, 1, 10, 20, []),
-            Match(119, 3, 9, 20, []),
-            Match(120, 7, 8, 20, []),
+            Match(115, 2, 6, 20, 2026),
+            Match(116, 5, 12, 20, 2026),
+            Match(117, 4, 11, 20, 2026),
+            Match(118, 1, 10, 20, 2026),
+            Match(119, 3, 9, 20, 2026),
+            Match(120, 7, 8, 20, 2026),
 
             # FECHA 21 (inverso FECHA 10)
-            Match(121, 7, 2, 21, []),
-            Match(122, 8, 3, 21, []),
-            Match(123, 9, 1, 21, []),
-            Match(124, 10, 4, 21, []),
-            Match(125, 11, 5, 21, []),
-            Match(126, 12, 6, 21, []),
+            Match(121, 7, 2, 21, 2026),
+            Match(122, 8, 3, 21, 2026),
+            Match(123, 9, 1, 21, 2026),
+            Match(124, 10, 4, 21, 2026),
+            Match(125, 11, 5, 21, 2026),
+            Match(126, 12, 6, 21, 2026),
 
             # FECHA 22 (inverso FECHA 11)
-            Match(127, 2, 12, 22, []),
-            Match(128, 6, 11, 22, []),
-            Match(129, 5, 10, 22, []),
-            Match(130, 4, 9, 22, []),
-            Match(131, 1, 8, 22, []),
-            Match(132, 3, 7, 22, []),
+            Match(127, 2, 12, 22, 2026),
+            Match(128, 6, 11, 22, 2026),
+            Match(129, 5, 10, 22, 2026),
+            Match(130, 4, 9, 22, 2026),
+            Match(131, 1, 8, 22, 2026),
+            Match(132, 3, 7, 22, 2026),
         ]
 
     def get_match_by_id(self, match_id):
@@ -186,12 +186,24 @@ class MatchesRepository:
             if match.id_match == match_id:
                 return match
 
+    def get_matches_by_matchday(self, matchday: int):
+        matches = [match for match in self.matches if match.matchday == matchday]
+
+        if not matches:
+            raise ValueError(f"No matches found for matchday {matchday}")
+
+        return matches
+
     def update_match_goals(self,match_id, goalsA, goalsB):
         for match in self.matches:
             if match.id_match == match_id:
                 match.goalsA = goalsA
                 match.goalsB = goalsB
                 return match
+
+    def update_match(self, match: Match):
+        # Como el objeto ya está en la lista, no hace falta reemplazar nada
+        return match
 
     def mark_match_as_played(self, match_id):
         for match in self.matches:
@@ -209,6 +221,7 @@ class MatchesRepository:
 
 
 """
+
 INSERT INTO matches VALUES (1,1,7,1,0,0,0);
 INSERT INTO matches VALUES (2,4,8,1,0,0,0);
 INSERT INTO matches VALUES (3,5,9,1,0,0,0);

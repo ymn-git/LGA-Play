@@ -1,58 +1,26 @@
-from typing import Optional
+from repositories.players_repository import PlayersRepository
 
-players_list = [
-    {"id": 1, "name": "Juan", "position": "GK"},
-    {"id": 2, "name": "Matias", "position": "DF"},
-    {"id": 3, "name": "Pablo", "position": "MF"},
-    {"id": 4, "name": "Pablo", "position": "FW"}
-]
+players_repo = PlayersRepository()
+
 def get_players():
-    return players_list
+    return players_repo.get_all()
 
 def get_player_by_id(id_player: int):
-    for p in players_list:
-        if p["id"] == id_player:
-            return p
-    raise ValueError("Player not found")
+    return players_repo.get_by_id(id_player)
 
 def create_player(player: dict):
-    if "name" not in player or "position" not in player:
+    if "id" not in player or "name" not in player or "position" not in player:
         raise ValueError("Missing required fields")
-    new_player = {
-        "id": len(players_list) + 1,
-        "name": player["name"],
-        "position": player["position"]
-    }
-    players_list.append(new_player)
-    return new_player
+    return players_repo.create(player)
 
-def put_player(id_player:int, updated_player:dict):
+def put_player(id_player: int, updated_player: dict):
     if "name" not in updated_player or "position" not in updated_player:
         raise ValueError("Missing required fields")
-    for p in players_list:
-        if p["id"] == id_player:
-            p["name"] = updated_player["name"]
-            p["position"] = updated_player["position"]
-            return updated_player
+    return players_repo.update_full(id_player, updated_player)
 
-def patch_player(id_player: int,
-                 name: Optional[str] = None,
-                 position: Optional[str] = None,
-                 active: Optional[bool] = None):
-    for p in players_list:
-        if p["id"] == id_player:
-            if name is not None:
-                p["name"] = name
-            if position is not None:
-                p["position"] = position
-            if active is not None:
-                p["active"] = active
-            return p
-    raise ValueError("Player nor found")
+def patch_player(id_player: int, name=None, position=None, active=None):
+    return players_repo.update_partial(id_player, name, position, active)
 
-def delete_player(id_player:int):
-    for p in players_list:
-        if p["id"] == id_player:
-            players_list.remove(p)
-            return
-    raise ValueError("Player nor found")
+def delete_player(id_player: int):
+    return players_repo.delete(id_player)
+
