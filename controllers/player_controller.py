@@ -11,6 +11,10 @@ router = APIRouter(
 def get_players():
     return player_service.get_players()
 
+@router.get("/scorers")
+def get_scorers():
+    return player_service.get_scorers()
+
 @router.get("/{id_player}")
 def get_player_by_id(id_player: int):
     try:
