@@ -1,4 +1,4 @@
-from entities.team import Team
+﻿from entities.team import Team
 
 class TeamsRepository:
     def __init__(self):
@@ -45,7 +45,7 @@ class TeamsRepository:
 
         # Evitar duplicados
         for team in self.team_list:
-            if team.id == team_data["id"]:
+            if team.id_team == team_data["id"]:
                 raise ValueError(f"Team with id {team_data['id']} already exists")
 
         # Crear el objeto Team
@@ -55,7 +55,7 @@ class TeamsRepository:
 
     def delete_team(self, id_team: int):
         for team in self.team_list:
-            if team.id == id_team:
+            if team.id_team == id_team:
                 self.team_list.remove(team)
                 return team
 
@@ -63,26 +63,26 @@ class TeamsRepository:
 
     def get_team_by_id(self, id_team):
         for team in self.team_list:
-            if team.id == id_team:
+            if team.id_team == id_team:
                 return team
         raise ValueError(f"Team with id {id_team} not found")
 
     def update_points_to_winner(self, points, winner_id):
         for team in self.team_list:
-            if team.id == winner_id:
+            if team.id_team == winner_id:
                 team.points += points
                 return team
         raise ValueError(f"Winner team with id {winner_id} not found")
 
     def update_wins_to_winner(self, winner_id):
         for team in self.team_list:
-            if team.id == winner_id:
+            if team.id_team == winner_id:
                 team.wins +=1
         raise ValueError(f"Winner team with id {winner_id} not found")
 
     def update_losses_to_looser(self, looser_id):
         for team in self.team_list:
-            if team.id == looser_id:
+            if team.id_team == looser_id:
                 team.losses +=1
         raise ValueError(f"Looser team with id {looser_id} not found")
 
@@ -122,40 +122,46 @@ class TeamsRepository:
 
     def update_positive_goal_difference (self, difference, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.goalDifference += difference
+                return team
         raise ValueError(f"Team with id {team_id} not found")
 
     def update_negative_goal_difference (self, difference, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.goalDifference -= difference
+                return team
         raise ValueError(f"Team with id {team_id} not found")
 
     def update_team_name(self, id_team: int, new_name: str):
         for team in self.team_list:
-            if team.id == id_team:
+            if team.id_team == id_team:
                 team.name = new_name
                 return team
         raise ValueError(f"Team with id {id_team} not found")
 
     def add_win (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.wins += 1
+            return team
         raise ValueError(f"Team with id {team_id} not found")
 
     def add_loss (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.losses += 1
+            return team
         raise ValueError(f"Team with id {team_id} not found")
 
     def add_draw (self, team_id):
         for team in self.team_list:
-            if team.id == team_id:
+            if team.id_team == team_id:
                 team.draws += 1
         raise ValueError(f"Team with id {team_id} not found")
+
+
 
 
 
