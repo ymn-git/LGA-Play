@@ -1,7 +1,11 @@
-from fastapi import APIRouter, HTTPException
+﻿from fastapi import APIRouter, HTTPException
 from services import match_service
 
 router = APIRouter(prefix="/matchs")
+
+@router.get("/")
+def get_matches():
+    return match_service.get_matches()
 
 @router.get("/{id_match}")
 def get_match_result(id_match: int):
@@ -20,5 +24,6 @@ def update_match_result(id_match: int, payload: dict):
         return match_service.update_match_result(id_match, payload)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
 
 
