@@ -1,4 +1,4 @@
-from repositories.teams_repository import TeamsRepository
+﻿from repositories.teams_repository import TeamsRepository
 from entities.match import Match
 from  repositories.matches_repository import MatchesRepository
 from repositories.season_stats_repository import SeasonStatsRepository
@@ -9,6 +9,9 @@ stats_repo = SeasonStatsRepository()
 
 def get_match_by_id(match_id):
     return matches_repo.get_match_by_id(match_id)
+
+def get_matches():
+    return matches_repo.get_all()
 
 def get_matches_by_matchday(matchday: int):
     return matches_repo.get_matches_by_matchday(matchday)
@@ -108,4 +111,5 @@ def add_loss(looser_team_id):
 
 def add_tie(teamA_id, teamB_id):
     return teams_repo.update_draw_to_both(teamA_id,teamB_id)
+
 

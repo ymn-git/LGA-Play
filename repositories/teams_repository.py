@@ -1,4 +1,4 @@
-from entities.team import Team
+﻿from entities.team import Team
 
 class TeamsRepository:
     def __init__(self):

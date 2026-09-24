@@ -1,4 +1,4 @@
-from entities.match import Match
+﻿from entities.match import Match
 from services.team_service import teams_repo
 
 class MatchesRepository:
@@ -185,6 +185,9 @@ class MatchesRepository:
         for match in self.matches:
             if match.id_match == match_id:
                 return match
+
+    def get_all(self):
+        return self.matches
 
     def get_matches_by_matchday(self, matchday: int):
         matches = [match for match in self.matches if match.matchday == matchday]
