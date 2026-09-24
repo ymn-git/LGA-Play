@@ -77,13 +77,15 @@ class TeamsRepository:
     def update_wins_to_winner(self, winner_id):
         for team in self.team_list:
             if team.id == winner_id:
-                team.wins +=1
+                team.wins += 1
+                return team
         raise ValueError(f"Winner team with id {winner_id} not found")
 
     def update_losses_to_looser(self, looser_id):
         for team in self.team_list:
             if team.id == looser_id:
-                team.losses +=1
+                team.losses += 1
+                return team
         raise ValueError(f"Looser team with id {looser_id} not found")
 
     def update_draw_to_both(self, teamA_id, teamB_id):
@@ -120,16 +122,18 @@ class TeamsRepository:
         else:
             raise ValueError(f"Team B with id {teamB_id} not found")
 
-    def update_positive_goal_difference (self, difference, team_id):
+    def update_positive_goal_difference(self, difference, team_id):
         for team in self.team_list:
             if team.id == team_id:
-                team.goalDifference += difference
+                team.goal_difference += difference
+                return team
         raise ValueError(f"Team with id {team_id} not found")
 
-    def update_negative_goal_difference (self, difference, team_id):
+    def update_negative_goal_difference(self, difference, team_id):
         for team in self.team_list:
             if team.id == team_id:
-                team.goalDifference -= difference
+                team.goal_difference -= difference
+                return team
         raise ValueError(f"Team with id {team_id} not found")
 
     def update_team_name(self, id_team: int, new_name: str):

@@ -194,28 +194,28 @@ class MatchesRepository:
 
         return matches
 
-    def update_match_goals(self,match_id, goalsA, goalsB):
+    def update_match_goals(self, match_id, goalsA, goalsB):
         for match in self.matches:
             if match.id_match == match_id:
-                match.goalsA = goalsA
-                match.goalsB = goalsB
+                match.goalsA = goalsA  # usa setter
+                match.goalsB = goalsB  # usa setter
                 return match
 
     def update_match(self, match: Match):
-        # Como el objeto ya está en la lista, no hace falta reemplazar nada
+        # El objeto ya está en la lista, no hace falta reemplazar nada
         return match
 
     def mark_match_as_played(self, match_id):
         for match in self.matches:
             if match.id_match == match_id:
-                match.jugado = True
+                match.jugado = True  # usa setter
                 return match
         raise ValueError("Match not found")
 
     def add_scorer(self, match_id, player_id):
         for match in self.matches:
             if match.id_match == match_id:
-                match.scorers_list.append(player_id)
+                match.scorers.append(player_id)  # usa propiedad scorers
                 return match
         raise ValueError("Match not found")
 

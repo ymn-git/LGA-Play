@@ -15,38 +15,87 @@ class Match:
                  jugado: bool = False):
 
         self.id_match = id_match
-        self.matchday = matchday
         self.teamA_id = teamA_id
         self.teamB_id = teamB_id
+        self.matchday = matchday
         self.season = season
 
-        # listas de eventos del partido
-        self.scorers = scorers if scorers is not None else []
-        self.yellow_cards = yellow_cards if yellow_cards is not None else []
-        self.red_cards = red_cards if red_cards is not None else []
+        # internos
+        self._goalsA = goalsA
+        self._goalsB = goalsB
+        self._jugado = jugado
 
-        self.goalsA = goalsA
-        self.goalsB = goalsB
-        self.jugado = jugado
+        # listas de eventos
+        self._scorers = scorers or []
+        self._yellow_cards = yellow_cards or []
+        self._red_cards = red_cards or []
 
+    # -------------------------
+    # GOLES
+    # -------------------------
+    @property
+    def goalsA(self) -> int:
+        return self._goalsA
+
+    @goalsA.setter
+    def goalsA(self, value: int):
+        self._goalsA = value
+
+    @property
+    def goalsB(self) -> int:
+        return self._goalsB
+
+    @goalsB.setter
+    def goalsB(self, value: int):
+        self._goalsB = value
+
+    # -------------------------
+    # JUGADO
+    # -------------------------
+    @property
+    def jugado(self) -> bool:
+        return self._jugado
+
+    @jugado.setter
+    def jugado(self, value: bool):
+        self._jugado = value
+
+    # -------------------------
+    # LISTAS DE EVENTOS
+    # -------------------------
+    @property
+    def scorers(self) -> List[int]:
+        return self._scorers
+
+    @scorers.setter
+    def scorers(self, value: List[int]):
+        self._scorers = value
+
+    @property
+    def yellow_cards(self) -> List[int]:
+        return self._yellow_cards
+
+    @yellow_cards.setter
+    def yellow_cards(self, value: List[int]):
+        self._yellow_cards = value
+
+    @property
+    def red_cards(self) -> List[int]:
+        return self._red_cards
+
+    @red_cards.setter
+    def red_cards(self, value: List[int]):
+        self._red_cards = value
+
+    # -------------------------
+    # DERIVADAS
+    # -------------------------
     @property
     def result(self):
-        if self.goalsA > self.goalsB:
-            return self.teamA_id, self.teamB_id
-        elif self.goalsB > self.goalsA:
-            return self.teamB_id, self.teamA_id
-        return None
+        if self._goalsA == self._goalsB:
+            return None
+        return (self.teamA_id, self.teamB_id) if self._goalsA > self._goalsB else (self.teamB_id, self.teamA_id)
 
     @property
-    def goal_difference(self):
-        return abs(self.goalsA - self.goalsB)
-
-    def add_scorers(self, scorer_ids: List[int]):
-        for player_id in scorer_ids:
-            self.scorers.append(player_id)
-
-        goles_por_jugador = {}
-        for pid in self.scorers:
-            goles_por_jugador[pid] = goles_por_jugador.get(pid, 0) + 1
-
-        return goles_por_jugador
+    def goal_difference(self) -> int:
+        return abs(self._goalsA - self._goalsB)
