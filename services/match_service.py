@@ -2,8 +2,8 @@
 from entities.match import Match
 from  repositories.matches_repository import MatchesRepository
 from repositories.season_stats_repository import SeasonStatsRepository
-from services import season_stats_service
-teams_repo = TeamsRepository()
+from services import season_stats_service, team_service
+teams_repo = team_service.teams_repo
 matches_repo = MatchesRepository()
 stats_repo = SeasonStatsRepository()
 
@@ -111,5 +111,6 @@ def add_loss(looser_team_id):
 
 def add_tie(teamA_id, teamB_id):
     return teams_repo.update_draw_to_both(teamA_id,teamB_id)
+
 
 
