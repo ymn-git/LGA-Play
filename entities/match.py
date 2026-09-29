@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 
 class Match:
     def __init__(self,
@@ -6,6 +7,7 @@ class Match:
                  teamA_id: int,
                  teamB_id: int,
                  matchday: int,
+                 matchDateTime: datetime |None,
                  season: int,
                  scorers: List[int] = None,
                  yellow_cards: List[int] = None,
@@ -18,6 +20,7 @@ class Match:
         self.teamA_id = teamA_id
         self.teamB_id = teamB_id
         self.matchday = matchday
+        self.matchDateTime = matchDateTime
         self.season = season
 
         # internos
