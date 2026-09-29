@@ -1,2 +1,22 @@
+# PyCharm / JetBrains
+.idea/
 
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Variables de entorno / secretos
+.env
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
