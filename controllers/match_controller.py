@@ -1,4 +1,5 @@
 ﻿from fastapi import APIRouter, HTTPException
+from datetime import date
 from services import match_service
 
 router = APIRouter(prefix="/matchs")
@@ -14,9 +15,19 @@ def get_match_result(id_match: int):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/matchday/{matchday}")
-def get_matches_by_matchday(matchday: int):
-    return match_service.get_matches_by_matchday(matchday)
+@router.get("/matchday/{season}/{matchday}")
+def get_matches_by_matchday(season: int, matchday: int):
+    try:
+        return match_service.get_matches_by_matchday(season, matchday)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/date/{season}/{match_date}")
+def get_matches_by_date(season: int, match_date: date):
+    try:
+        return match_service.get_matches_by_date(season, match_date)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.patch("/{id_match}/result")
 def update_match_result(id_match: int, payload: dict):

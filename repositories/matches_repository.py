@@ -32,20 +32,24 @@ class MatchesRepository:
         finally:
             conn.close()
 
-    def get_matches_by_matchday(self, matchday: int) -> list[Match]:
+    def get_matches_by_matchday(
+        self, season: int, matchday: int
+    ) -> list[Match]:
         conn = get_connection()
         conn.row_factory = sqlite3.Row
         try:
             rows = conn.execute(
                 """
                 SELECT * FROM matches
-                WHERE matchday = ?
+                WHERE season = ? AND matchday = ?
                 ORDER BY id_match
                 """,
-                (matchday,),
+                (season, matchday),
             ).fetchall()
             if not rows:
-                raise ValueError(f"No matches found for matchday {matchday}")
+                raise ValueError(
+                    f"No matches found for season {season}, matchday {matchday}"
+                )
             return [self._row_to_match(conn, row) for row in rows]
         finally:
             conn.close()

@@ -1,3 +1,5 @@
+from datetime import date
+
 from entities.goal import Goal
 from repositories.matches_repository import MatchesRepository
 from repositories.teams_repository import TeamsRepository
@@ -20,8 +22,12 @@ def _get_played_matches(season: int):
     return matches_repo.get_played_matches_by_season(season)
 
 
-def get_matches_by_matchday(matchday: int):
-    return matches_repo.get_matches_by_matchday(matchday)
+def get_matches_by_matchday(season: int, matchday: int):
+    return matches_repo.get_matches_by_matchday(season, matchday)
+
+
+def get_matches_by_date(season: int, match_date: date):
+    return matches_repo.get_matches_by_date(season, match_date)
 
 
 def get_match_result(match_id: int):
