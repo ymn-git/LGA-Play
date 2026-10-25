@@ -73,16 +73,50 @@ def get_match_stats(match_id: int) -> dict:
 
 
 def get_standings(season: int) -> list[dict]:
-    standings = matches_repo.get_standings_raw(season)
-    result = []
+    standings = {
+        team.id_team: {
+            "points": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "goalDifference": 0,
+        }
+        for team in teams_repo.team_list
+    }
 
-    for team_id, stats in standings.items():
-        team = teams_repo.get_team_by_id(team_id)
-        result.append({
-            "team_id": team_id,
+    for match in _get_played_matches(season):
+        team_a = standings[match.teamA_id]
+        team_b = standings[match.teamB_id]
+        goals_a = len(match.goalsA)
+        goals_b = len(match.goalsB)
+        goal_difference = abs(goals_a - goals_b)
+
+        if goals_a == goals_b:
+            team_a["draws"] += 1
+            team_a["points"] += 1
+            team_b["draws"] += 1
+            team_b["points"] += 1
+        elif goals_a > goals_b:
+            team_a["wins"] += 1
+            team_a["points"] += 3
+            team_a["goalDifference"] += goal_difference
+            team_b["losses"] += 1
+            team_b["goalDifference"] -= goal_difference
+        else:
+            team_b["wins"] += 1
+            team_b["points"] += 3
+            team_b["goalDifference"] += goal_difference
+            team_a["losses"] += 1
+            team_a["goalDifference"] -= goal_difference
+
+    result = [
+        {
+            "team_id": team.id_team,
             "name": team.name,
-            **stats,
-        })
+            **standings[team.id_team],
+        }
+        for team in teams_repo.team_list
+    ]
 
     result.sort(
         key=lambda team: (-team["points"], -team["goalDifference"])

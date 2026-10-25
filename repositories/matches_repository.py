@@ -32,9 +32,7 @@ class MatchesRepository:
         finally:
             conn.close()
 
-    def get_matches_by_matchday(
-        self, season: int, matchday: int
-    ) -> list[Match]:
+    def get_matches_by_matchday(self, season: int, matchday: int) -> list[Match]:
         conn = get_connection()
         conn.row_factory = sqlite3.Row
         try:
@@ -87,33 +85,6 @@ class MatchesRepository:
             return [self._row_to_match(conn, row) for row in rows]
         finally:
             conn.close()
-
-    def get_standings_raw(self, season: int) -> dict:
-        standings = {}
-        for match in self.get_played_matches_by_season(season):
-            for team_id in (match.teamA_id, match.teamB_id):
-                standings.setdefault(team_id, {
-                    "points": 0,
-                    "wins": 0,
-                    "losses": 0,
-                    "draws": 0,
-                    "goalDifference": 0,
-                })
-
-            if match.result is None:
-                for team_id in (match.teamA_id, match.teamB_id):
-                    standings[team_id]["draws"] += 1
-                    standings[team_id]["points"] += 1
-                continue
-
-            winner, loser = match.result
-            standings[winner]["wins"] += 1
-            standings[winner]["points"] += 3
-            standings[winner]["goalDifference"] += match.goal_difference
-            standings[loser]["losses"] += 1
-            standings[loser]["goalDifference"] -= match.goal_difference
-
-        return standings
 
     def get_yellow_cards_by_player_season(
         self, season: int, player_id: int
