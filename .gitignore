@@ -16,6 +16,7 @@ env/
 
 # Variables de entorno / secretos
 .env
+league.db
 
 # Sistema operativo
 .DS_Store

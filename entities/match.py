@@ -1,5 +1,7 @@
-from typing import List
 from datetime import datetime
+
+from entities.goal import Goal
+
 
 class Match:
     def __init__(self,
@@ -7,54 +9,67 @@ class Match:
                  teamA_id: int,
                  teamB_id: int,
                  matchday: int,
-                 matchDateTime: datetime |None,
+                 match_date_time: datetime,
                  season: int,
-                 scorers: List[int] = None,
-                 yellow_cards: List[int] = None,
-                 red_cards: List[int] = None,
-                 goalsA: int = 0,
-                 goalsB: int = 0,
-                 jugado: bool = False):
+                 goals: list[Goal] | None = None,
+                 yellow_cards: list[int] = None,
+                 red_cards: list[int] = None,
+                 jugado: bool = False,
+                 phase: str = "regular"):
 
         self.id_match = id_match
         self.teamA_id = teamA_id
         self.teamB_id = teamB_id
         self.matchday = matchday
-        self.matchDateTime = matchDateTime
+        self.match_date_time = match_date_time
         self.season = season
-
         # internos
-        self._goalsA = goalsA
-        self._goalsB = goalsB
         self._jugado = jugado
+        self._phase = phase
+        self.goals = list(goals) if goals else []
+        self._yellow_cards = list(yellow_cards) if yellow_cards else []
+        self._red_cards = list(red_cards) if red_cards else []
 
-        # listas de eventos
-        self._scorers = scorers or []
-        self._yellow_cards = yellow_cards or []
-        self._red_cards = red_cards or []
-
-    # -------------------------
-    # GOLES
-    # -------------------------
     @property
-    def goalsA(self) -> int:
-        return self._goalsA
+    def phase(self) -> str:
+        return self._phase
+
+    @property
+    def goalsA(self) -> list[int]:
+        return [
+            goal.id_player
+            for goal in self.goals
+            if goal.id_team == self.teamA_id
+        ]
 
     @goalsA.setter
-    def goalsA(self, value: int):
-        self._goalsA = value
+    def goalsA(self, player_ids: list[int]):
+        self.goals = [
+            goal for goal in self.goals if goal.id_team != self.teamA_id
+        ]
+        self.goals.extend(
+            Goal(id_team=self.teamA_id, id_player=player_id)
+            for player_id in player_ids
+        )
 
     @property
-    def goalsB(self) -> int:
-        return self._goalsB
+    def goalsB(self) -> list[int]:
+        return [
+            goal.id_player
+            for goal in self.goals
+            if goal.id_team == self.teamB_id
+        ]
 
     @goalsB.setter
-    def goalsB(self, value: int):
-        self._goalsB = value
+    def goalsB(self, player_ids: list[int]):
+        self.goals = [
+            goal for goal in self.goals if goal.id_team != self.teamB_id
+        ]
+        self.goals.extend(
+            Goal(id_team=self.teamB_id, id_player=player_id)
+            for player_id in player_ids
+        )
 
-    # -------------------------
-    # JUGADO
-    # -------------------------
     @property
     def jugado(self) -> bool:
         return self._jugado
@@ -63,42 +78,29 @@ class Match:
     def jugado(self, value: bool):
         self._jugado = value
 
-    # -------------------------
-    # LISTAS DE EVENTOS
-    # -------------------------
     @property
-    def scorers(self) -> List[int]:
-        return self._scorers
-
-    @scorers.setter
-    def scorers(self, value: List[int]):
-        self._scorers = value
-
-    @property
-    def yellow_cards(self) -> List[int]:
-        return self._yellow_cards
+    def yellow_cards(self) -> list[int]:
+        return list(self._yellow_cards)
 
     @yellow_cards.setter
-    def yellow_cards(self, value: List[int]):
-        self._yellow_cards = value
+    def yellow_cards(self, value: list[int]):
+        self._yellow_cards = list(value)
 
     @property
-    def red_cards(self) -> List[int]:
-        return self._red_cards
+    def red_cards(self) -> list[int]:
+        return list(self._red_cards)
 
     @red_cards.setter
-    def red_cards(self, value: List[int]):
-        self._red_cards = value
+    def red_cards(self, value: list[int]):
+        self._red_cards = list(value)
 
-    # -------------------------
-    # DERIVADAS
-    # -------------------------
     @property
     def result(self):
-        if self._goalsA == self._goalsB:
+        a, b = len(self.goalsA), len(self.goalsB)
+        if a == b:
             return None
-        return (self.teamA_id, self.teamB_id) if self._goalsA > self._goalsB else (self.teamB_id, self.teamA_id)
+        return (self.teamA_id, self.teamB_id) if a > b else (self.teamB_id, self.teamA_id)
 
     @property
     def goal_difference(self) -> int:
-        return abs(self._goalsA - self._goalsB)
+        return abs(len(self.goalsA) - len(self.goalsB))

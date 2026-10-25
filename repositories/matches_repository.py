@@ -1,391 +1,262 @@
-﻿from entities.match import Match
-from services.team_service import teams_repo
-from datetime import datetime,timedelta
+import sqlite3
+from datetime import date, datetime
 
-def simular_fechas(matchday,match_id):
-    return datetime.now() + timedelta(
-    days=matchday - 1,
-    hours=(match_id % 5) * 2)
+from database import get_connection
+from entities.goal import Goal
+from entities.match import Match
+
 
 class MatchesRepository:
-    def __init__(self):
-        self.matches = [
-            # FECHA 1
-            Match(1, 1, 7, 1, None, 2026),
-            Match(2, 4, 8, 1, None, 2026),
-            Match(3, 5, 9, 1, None, 2026),
-            Match(4, 6, 10, 1, None, 2026),
-            Match(5, 12, 11, 1, None, 2026),
-            Match(6, 3, 2, 1, None, 2026),
+    def get_match_by_id(self, match_id: int) -> Match:
+        conn = get_connection()
+        conn.row_factory = sqlite3.Row
+        try:
+            row = conn.execute(
+                "SELECT * FROM matches WHERE id_match = ?",
+                (match_id,),
+            ).fetchone()
+            if row is None:
+                raise ValueError(f"Match {match_id} not found")
+            return self._row_to_match(conn, row)
+        finally:
+            conn.close()
 
-            # FECHA 2
-            Match(7, 2, 11, 2, None, 2026),
-            Match(8, 10, 12, 2, None, 2026),
-            Match(9, 9, 6, 2, None, 2026),
-            Match(10, 8, 5, 2, None, 2026),
-            Match(11, 7, 4, 2, None, 2026),
-            Match(12, 3, 1, 2, None, 2026),
+    def get_all(self) -> list[Match]:
+        conn = get_connection()
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                "SELECT * FROM matches ORDER BY id_match"
+            ).fetchall()
+            return [self._row_to_match(conn, row) for row in rows]
+        finally:
+            conn.close()
 
-            # FECHA 3
-            Match(13, 1, 2, 3, None, 2026),
-            Match(14, 4, 3, 3, None, 2026),
-            Match(15, 5, 7, 3, None, 2026),
-            Match(16, 6, 8, 3, None, 2026),
-            Match(17, 12, 9, 3, None, 2026),
-            Match(18, 11, 10, 3, None, 2026),
+    def get_matches_by_matchday(self, matchday: int) -> list[Match]:
+        conn = get_connection()
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                """
+                SELECT * FROM matches
+                WHERE matchday = ?
+                ORDER BY id_match
+                """,
+                (matchday,),
+            ).fetchall()
+            if not rows:
+                raise ValueError(f"No matches found for matchday {matchday}")
+            return [self._row_to_match(conn, row) for row in rows]
+        finally:
+            conn.close()
 
-            # FECHA 4
-            Match(19, 2, 10, 4, None, 2026),
-            Match(20, 9, 11, 4, None, 2026),
-            Match(21, 8, 12, 4, None, 2026),
-            Match(22, 7, 6, 4, None, 2026),
-            Match(23, 3, 5, 4, None, 2026),
-            Match(24, 4, 1, 4, None, 2026),
+    def get_played_matches_by_season(self, season: int) -> list[Match]:
+        conn = get_connection()
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                """
+                SELECT * FROM matches
+                WHERE season = ? AND played = 1
+                ORDER BY id_match
+                """,
+                (season,),
+            ).fetchall()
+            return [self._row_to_match(conn, row) for row in rows]
+        finally:
+            conn.close()
 
-            # FECHA 5
-            Match(25, 4, 2, 5, None, 2026),
-            Match(26, 1, 5, 5, None, 2026),
-            Match(27, 6, 3, 5, None, 2026),
-            Match(28, 11, 8, 5, None, 2026),
-            Match(29, 10, 9, 5, None, 2026),
-            Match(30, 12, 7, 5, None, 2026),
+    def get_matches_by_date(self, season: int, match_date: date) -> list[Match]:
+        conn = get_connection()
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute(
+                """
+                SELECT * FROM matches
+                WHERE season = ? AND date(match_date_time) = ?
+                ORDER BY match_date_time, id_match
+                """,
+                (season, match_date.isoformat()),
+            ).fetchall()
+            if not rows:
+                raise ValueError(f"No matches found for date {match_date}")
+            return [self._row_to_match(conn, row) for row in rows]
+        finally:
+            conn.close()
 
-            # FECHA 6
-            Match(31, 2, 9, 6, None, 2026),
-            Match(32, 8, 10, 6, None, 2026),
-            Match(33, 7, 11, 6, None, 2026),
-            Match(34, 3, 12, 6, None, 2026),
-            Match(35, 6, 1, 6, None, 2026),
-            Match(36, 4, 5, 6, None, 2026),
+    def get_standings_raw(self, season: int) -> dict:
+        standings = {}
+        for match in self.get_played_matches_by_season(season):
+            for team_id in (match.teamA_id, match.teamB_id):
+                standings.setdefault(team_id, {
+                    "points": 0,
+                    "wins": 0,
+                    "losses": 0,
+                    "draws": 0,
+                    "goalDifference": 0,
+                })
 
-            # FECHA 7
-            Match(37, 5, 2, 7, None, 2026),
-            Match(38, 6, 4, 7, None, 2026),
-            Match(39, 1, 12, 7, None, 2026),
-            Match(40, 11, 3, 7, None, 2026),
-            Match(41, 10, 7, 7, None, 2026),
-            Match(42, 9, 8, 7, None, 2026),
+            if match.result is None:
+                for team_id in (match.teamA_id, match.teamB_id):
+                    standings[team_id]["draws"] += 1
+                    standings[team_id]["points"] += 1
+                continue
 
-            # FECHA 8
-            Match(43, 8, 2, 8, None, 2026),
-            Match(44, 7, 9, 8, None, 2026),
-            Match(45, 3, 10, 8, None, 2026),
-            Match(46, 1, 11, 8, None, 2026),
-            Match(47, 4, 12, 8, None, 2026),
-            Match(48, 5, 6, 8, None, 2026),
+            winner, loser = match.result
+            standings[winner]["wins"] += 1
+            standings[winner]["points"] += 3
+            standings[winner]["goalDifference"] += match.goal_difference
+            standings[loser]["losses"] += 1
+            standings[loser]["goalDifference"] -= match.goal_difference
 
-            # FECHA 9
-            Match(49, 6, 2, 9, None, 2026),
-            Match(50, 12, 5, 9, None, 2026),
-            Match(51, 11, 4, 9, None, 2026),
-            Match(52, 10, 1, 9, None, 2026),
-            Match(53, 9, 3, 9, None, 2026),
-            Match(54, 8, 7, 9, None, 2026),
+        return standings
 
-            # FECHA 10
-            Match(55, 2, 7, 10, None, 2026),
-            Match(56, 3, 8, 10, None, 2026),
-            Match(57, 1, 9, 10, None, 2026),
-            Match(58, 4, 10, 10, None, 2026),
-            Match(59, 5, 11, 10, None, 2026),
-            Match(60, 6, 12, 10, None, 2026),
+    def get_yellow_cards_by_player_season(
+        self, season: int, player_id: int
+    ) -> int:
+        return self._get_cards_by_player_season(season, player_id, "yellow")
 
-            # FECHA 11
-            Match(61, 12, 2, 11, None, 2026),
-            Match(62, 11, 6, 11, None, 2026),
-            Match(63, 10, 5, 11, None, 2026),
-            Match(64, 9, 4, 11, None, 2026),
-            Match(65, 8, 1, 11, None, 2026),
-            Match(66, 7, 3, 11, None, 2026),
+    def get_red_cards_by_player_season(
+        self, season: int, player_id: int
+    ) -> int:
+        return self._get_cards_by_player_season(season, player_id, "red")
 
-            # FECHA 12 (inverso FECHA 1)
-            Match(67, 7, 1, 12, None, 2026),
-            Match(68, 8, 4, 12, None, 2026),
-            Match(69, 9, 5, 12, None, 2026),
-            Match(70, 10, 6, 12, None, 2026),
-            Match(71, 11, 12, 12, None, 2026),
-            Match(72, 2, 3, 12, None, 2026),
+    def _get_cards_by_player_season(
+        self, season: int, player_id: int, card_type: str
+    ) -> int:
+        conn = get_connection()
+        try:
+            row = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM cards
+                JOIN matches ON matches.id_match = cards.id_match
+                WHERE matches.season = ?
+                    AND matches.played = 1
+                    AND cards.id_player = ?
+                    AND cards.type = ?
+                """,
+                (season, player_id, card_type),
+            ).fetchone()
+            return row[0]
+        finally:
+            conn.close()
 
-            # FECHA 13 (inverso FECHA 2)
-            Match(73, 11, 2, 13, None, 2026),
-            Match(75, 6, 9, 13, None, 2026),
-            Match(76, 5, 8, 13, None, 2026),
-            Match(77, 4, 7, 13, None, 2026),
-            Match(78, 1, 3, 13, None, 2026),
+    def update_match(self, match: Match) -> Match:
+        conn = get_connection()
+        try:
+            conn.execute("BEGIN")
 
-            # FECHA 14 (inverso FECHA 3)
-            Match(79, 2, 1, 14, None, 2026),
-            Match(80, 3, 4, 14, None, 2026),
-            Match(81, 7, 5, 14, None, 2026),
-            Match(82, 8, 6, 14, None, 2026),
-            Match(83, 9, 12, 14, None, 2026),
-            Match(84, 10, 11, 14, None, 2026),
+            row = conn.execute(
+                "SELECT id_match FROM matches WHERE id_match = ?",
+                (match.id_match,),
+            ).fetchone()
+            if row is None:
+                raise ValueError(f"Match {match.id_match} not found")
 
-            # FECHA 15 (inverso FECHA 4)
-            Match(85, 10, 2, 15, None, 2026),
-            Match(86, 11, 9, 15, None, 2026),
-            Match(87, 12, 8, 15, None, 2026),
-            Match(88, 6, 7, 15, None, 2026),
-            Match(89, 5, 3, 15, None, 2026),
-            Match(90, 1, 4, 15, None, 2026),
-
-            # FECHA 16 (inverso FECHA 5)
-            Match(91, 2, 4, 16, None, 2026),
-            Match(92, 5, 1, 16, None, 2026),
-            Match(93, 3, 6, 16, None, 2026),
-            Match(94, 8, 11, 16, None, 2026),
-            Match(95, 9, 10, 16, None, 2026),
-            Match(96, 7, 12, 16,  None,2026),
-
-            # FECHA 17 (inverso FECHA 6)
-            Match(97, 9, 2, 17, None, 2026),
-            Match(98, 10, 8, 17, None, 2026),
-            Match(99, 11, 7, 17, None, 2026),
-            Match(100, 12, 3, 17, None, 2026),
-            Match(101, 1, 6, 17, None, 2026),
-            Match(102, 5, 4, 17, None, 2026),
-
-            # FECHA 18 (inverso FECHA 7)
-            Match(104, 4, 6, 18, None, 2026),
-            Match(105, 12, 1, 18, None, 2026),
-            Match(106, 3, 11, 18, None, 2026),
-            Match(107, 7, 10, 18, None, 2026),
-            Match(108, 8, 9, 18, None, 2026),
-
-            # FECHA 19 (inverso FECHA 8)
-            Match(109, 2, 8, 19, None, 2026),
-            Match(110, 9, 7, 19, None, 2026),
-            Match(111, 10, 3, 19, None, 2026),
-            Match(112, 11, 1, 19, None, 2026),
-            Match(113, 12, 4, 19, None, 2026),
-            Match(114, 6, 5, 19, None, 2026),
-
-            # FECHA 20 (inverso FECHA 9)
-            Match(115, 2, 6, 20, None, 2026),
-            Match(116, 5, 12, 20, None, 2026),
-            Match(117, 4, 11, 20, None, 2026),
-            Match(118, 1, 10, 20, None, 2026),
-            Match(119, 3, 9, 20, None, 2026),
-            Match(120, 7, 8, 20, None, 2026),
-
-            # FECHA 21 (inverso FECHA 10)
-            Match(121, 7, 2, 21, None, 2026),
-            Match(122, 8, 3, 21, None, 2026),
-            Match(123, 9, 1, 21, None, 2026),
-            Match(124, 10, 4, 21, None, 2026),
-            Match(125, 11, 5, 21, None, 2026),
-            Match(126, 12, 6, 21, None, 2026),
-
-            # FECHA 22 (inverso FECHA 11)
-            Match(127, 2, 12, 22, None, 2026),
-            Match(128, 6, 11, 22, None, 2026),
-            Match(129, 5, 10, 22, None, 2026),
-            Match(130, 4, 9, 22, None, 2026),
-            Match(131, 1, 8, 22, None, 2026),
-            Match(132, 3, 7, 22, None, 2026),
-        ]
-        for match in self.matches:
-            match.matchDateTime = simular_fechas(
-                match.matchday,
-                match.id_match
+            conn.execute(
+                "UPDATE matches SET played = ? WHERE id_match = ?",
+                (int(match.jugado), match.id_match),
+            )
+            conn.execute(
+                "DELETE FROM goals WHERE id_match = ?",
+                (match.id_match,),
+            )
+            conn.execute(
+                "DELETE FROM cards WHERE id_match = ?",
+                (match.id_match,),
             )
 
-    def get_match_by_id(self, match_id):
-        for match in self.matches:
-            if match.id_match == match_id:
-                return match
+            for goal in match.goals:
+                conn.execute(
+                    """
+                    INSERT INTO goals (id_match, id_team, id_player, own_goal)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        match.id_match,
+                        goal.id_team,
+                        goal.id_player,
+                        int(goal.own_goal),
+                    ),
+                )
 
-    def get_all(self):
-        return self.matches
+            for player_id in match.yellow_cards:
+                conn.execute(
+                    """
+                    INSERT INTO cards (id_match, id_player, type)
+                    VALUES (?, ?, ?)
+                    """,
+                    (match.id_match, player_id, "yellow"),
+                )
 
-    def get_matches_by_matchday(self, matchday: int):
-        matches = [match for match in self.matches if match.matchday == matchday]
+            for player_id in match.red_cards:
+                conn.execute(
+                    """
+                    INSERT INTO cards (id_match, id_player, type)
+                    VALUES (?, ?, ?)
+                    """,
+                    (match.id_match, player_id, "red"),
+                )
 
-        if not matches:
-            raise ValueError(f"No matches found for matchday {matchday}")
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
-        return matches
+        return self.get_match_by_id(match.id_match)
 
-    def update_match_goals(self, match_id, goalsA, goalsB):
-        for match in self.matches:
-            if match.id_match == match_id:
-                match.goalsA = goalsA  # usa setter
-                match.goalsB = goalsB  # usa setter
-                return match
+    def _row_to_match(self, conn: sqlite3.Connection, row: sqlite3.Row) -> Match:
+        goal_rows = conn.execute(
+            """
+            SELECT id_team, id_player, own_goal
+            FROM goals
+            WHERE id_match = ?
+            ORDER BY id
+            """,
+            (row["id_match"],),
+        ).fetchall()
+        card_rows = conn.execute(
+            """
+            SELECT id_player, type
+            FROM cards
+            WHERE id_match = ?
+            ORDER BY id
+            """,
+            (row["id_match"],),
+        ).fetchall()
 
-    def update_match(self, match: Match):
-        # El objeto ya está en la lista, no hace falta reemplazar nada
-        return match
+        yellow_cards = []
+        red_cards = []
+        for card in card_rows:
+            if card["type"] == "yellow":
+                yellow_cards.append(card["id_player"])
+            elif card["type"] == "red":
+                red_cards.append(card["id_player"])
 
-    def mark_match_as_played(self, match_id):
-        for match in self.matches:
-            if match.id_match == match_id:
-                match.jugado = True  # usa setter
-                return match
-        raise ValueError("Match not found")
-
-    def add_scorer(self, match_id, player_id):
-        for match in self.matches:
-            if match.id_match == match_id:
-                match.scorers.append(player_id)  # usa propiedad scorers
-                return match
-        raise ValueError("Match not found")
-
-
-"""
-
-INSERT INTO matches VALUES (1,1,7,1,0,0,0);
-INSERT INTO matches VALUES (2,4,8,1,0,0,0);
-INSERT INTO matches VALUES (3,5,9,1,0,0,0);
-INSERT INTO matches VALUES (4,6,10,1,0,0,0);
-INSERT INTO matches VALUES (5,12,11,1,0,0,0);
-INSERT INTO matches VALUES (6,3,2,1,0,0,0);
-
-INSERT INTO matches VALUES (7,2,11,2,0,0,0);
-INSERT INTO matches VALUES (8,10,12,2,0,0,0);
-INSERT INTO matches VALUES (9,9,6,2,0,0,0);
-INSERT INTO matches VALUES (10,8,5,2,0,0,0);
-INSERT INTO matches VALUES (11,7,4,2,0,0,0);
-INSERT INTO matches VALUES (12,3,1,2,0,0,0);
-
-INSERT INTO matches VALUES (13,1,2,3,0,0,0);
-INSERT INTO matches VALUES (14,4,3,3,0,0,0);
-INSERT INTO matches VALUES (15,5,7,3,0,0,0);
-INSERT INTO matches VALUES (16,6,8,3,0,0,0);
-INSERT INTO matches VALUES (17,12,9,3,0,0,0);
-INSERT INTO matches VALUES (18,11,10,3,0,0,0);
-
-INSERT INTO matches VALUES (19,2,10,4,0,0,0);
-INSERT INTO matches VALUES (20,9,11,4,0,0,0);
-INSERT INTO matches VALUES (21,8,12,4,0,0,0);
-INSERT INTO matches VALUES (22,7,6,4,0,0,0);
-INSERT INTO matches VALUES (23,3,5,4,0,0,0);
-INSERT INTO matches VALUES (24,4,1,4,0,0,0);
-
-INSERT INTO matches VALUES (25,4,2,5,0,0,0);
-INSERT INTO matches VALUES (26,1,5,5,0,0,0);
-INSERT INTO matches VALUES (27,6,3,5,0,0,0);
-INSERT INTO matches VALUES (28,11,8,5,0,0,0);
-INSERT INTO matches VALUES (29,10,9,5,0,0,0);
-INSERT INTO matches VALUES (30,12,7,5,0,0,0);
-
-INSERT INTO matches VALUES (31,2,9,6,0,0,0);
-INSERT INTO matches VALUES (32,8,10,6,0,0,0);
-INSERT INTO matches VALUES (33,7,11,6,0,0,0);
-INSERT INTO matches VALUES (34,3,12,6,0,0,0);
-INSERT INTO matches VALUES (35,6,1,6,0,0,0);
-INSERT INTO matches VALUES (36,4,5,6,0,0,0);
-
-INSERT INTO matches VALUES (37,5,2,7,0,0,0);
-INSERT INTO matches VALUES (38,6,4,7,0,0,0);
-INSERT INTO matches VALUES (39,1,12,7,0,0,0);
-INSERT INTO matches VALUES (40,11,3,7,0,0,0);
-INSERT INTO matches VALUES (41,10,7,7,0,0,0);
-INSERT INTO matches VALUES (42,9,8,7,0,0,0);
-
-INSERT INTO matches VALUES (43,8,2,8,0,0,0);
-INSERT INTO matches VALUES (44,7,9,8,0,0,0);
-INSERT INTO matches VALUES (45,3,10,8,0,0,0);
-INSERT INTO matches VALUES (46,1,11,8,0,0,0);
-INSERT INTO matches VALUES (47,4,12,8,0,0,0);
-INSERT INTO matches VALUES (48,5,6,8,0,0,0);
-
-INSERT INTO matches VALUES (49,6,2,9,0,0,0);
-INSERT INTO matches VALUES (50,12,5,9,0,0,0);
-INSERT INTO matches VALUES (51,11,4,9,0,0,0);
-INSERT INTO matches VALUES (52,10,1,9,0,0,0);
-INSERT INTO matches VALUES (53,9,3,9,0,0,0);
-INSERT INTO matches VALUES (54,8,7,9,0,0,0);
-
-INSERT INTO matches VALUES (55,2,7,10,0,0,0);
-INSERT INTO matches VALUES (56,3,8,10,0,0,0);
-INSERT INTO matches VALUES (57,1,9,10,0,0,0);
-INSERT INTO matches VALUES (58,4,10,10,0,0,0);
-INSERT INTO matches VALUES (59,5,11,10,0,0,0);
-INSERT INTO matches VALUES (60,6,12,10,0,0,0);
-
-INSERT INTO matches VALUES (61,12,2,11,0,0,0);
-INSERT INTO matches VALUES (62,11,6,11,0,0,0);
-INSERT INTO matches VALUES (63,10,5,11,0,0,0);
-INSERT INTO matches VALUES (64,9,4,11,0,0,0);
-INSERT INTO matches VALUES (65,8,1,11,0,0,0);
-INSERT INTO matches VALUES (66,7,3,11,0,0,0);
-
-INSERT INTO matches VALUES (67,7,1,12,0,0,0);
-INSERT INTO matches VALUES (68,8,4,12,0,0,0);
-INSERT INTO matches VALUES (69,9,5,12,0,0,0);
-INSERT INTO matches VALUES (70,10,6,12,0,0,0);
-INSERT INTO matches VALUES (71,11,12,12,0,0,0);
-INSERT INTO matches VALUES (72,2,3,12,0,0,0);
-
-INSERT INTO matches VALUES (73,11,2,13,0,0,0);
-INSERT INTO matches VALUES (74,12,10,13,0,0,0);
-INSERT INTO matches VALUES (75,6,9,13,0,0,0);
-INSERT INTO matches VALUES (76,5,8,13,0,0,0);
-INSERT INTO matches VALUES (77,4,7,13,0,0,0);
-INSERT INTO matches VALUES (78,1,3,13,0,0,0);
-
-INSERT INTO matches VALUES (79,2,1,14,0,0,0);
-INSERT INTO matches VALUES (80,3,4,14,0,0,0);
-INSERT INTO matches VALUES (81,7,5,14,0,0,0);
-INSERT INTO matches VALUES (82,8,6,14,0,0,0);
-INSERT INTO matches VALUES (83,9,12,14,0,0,0);
-INSERT INTO matches VALUES (84,10,11,14,0,0,0);
-
-INSERT INTO matches VALUES (85,10,2,15,0,0,0);
-INSERT INTO matches VALUES (86,11,9,15,0,0,0);
-INSERT INTO matches VALUES (87,12,8,15,0,0,0);
-INSERT INTO matches VALUES (88,6,7,15,0,0,0);
-INSERT INTO matches VALUES (89,5,3,15,0,0,0);
-INSERT INTO matches VALUES (90,1,4,15,0,0,0);
-
-INSERT INTO matches VALUES (91,2,4,16,0,0,0);
-INSERT INTO matches VALUES (92,5,1,16,0,0,0);
-INSERT INTO matches VALUES (93,3,6,16,0,0,0);
-INSERT INTO matches VALUES (94,8,11,16,0,0,0);
-INSERT INTO matches VALUES (95,9,10,16,0,0,0);
-INSERT INTO matches VALUES (96,7,12,16,0,0,0);
-
-INSERT INTO matches VALUES (97,9,2,17,0,0,0);
-INSERT INTO matches VALUES (98,10,8,17,0,0,0);
-INSERT INTO matches VALUES (99,11,7,17,0,0,0);
-INSERT INTO matches VALUES (100,12,3,17,0,0,0);
-INSERT INTO matches VALUES (101,1,6,17,0,0,0);
-INSERT INTO matches VALUES (102,5,4,17,0,0,0);
-
-INSERT INTO matches VALUES (103,2,5,18,0,0,0);
-INSERT INTO matches VALUES (104,4,6,18,0,0,0);
-INSERT INTO matches VALUES (105,12,1,18,0,0,0);
-INSERT INTO matches VALUES (106,3,11,18,0,0,0);
-INSERT INTO matches VALUES (107,7,10,18,0,0,0);
-INSERT INTO matches VALUES (108,8,9,18,0,0,0);
-
-INSERT INTO matches VALUES (109,2,8,19,0,0,0);
-INSERT INTO matches VALUES (110,9,7,19,0,0,0);
-INSERT INTO matches VALUES (111,10,3,19,0,0,0);
-INSERT INTO matches VALUES (112,11,1,19,0,0,0);
-INSERT INTO matches VALUES (113,12,4,19,0,0,0);
-INSERT INTO matches VALUES (114,6,5,19,0,0,0);
-
-INSERT INTO matches VALUES (115,2,6,20,0,0,0);
-INSERT INTO matches VALUES (116,5,12,20,0,0,0);
-INSERT INTO matches VALUES (117,4,11,20,0,0,0);
-INSERT INTO matches VALUES (118,1,10,20,0,0,0);
-INSERT INTO matches VALUES (119,3,9,20,0,0,0);
-INSERT INTO matches VALUES (120,7,8,20,0,0,0);
-
-INSERT INTO matches VALUES (121,7,2,21,0,0,0);
-INSERT INTO matches VALUES (122,8,3,21,0,0,0);
-INSERT INTO matches VALUES (123,9,1,21,0,0,0);
-INSERT INTO matches VALUES (124,10,4,21,0,0,0);
-INSERT INTO matches VALUES (125,11,5,21,0,0,0);
-INSERT INTO matches VALUES (126,12,6,21,0,0,0);
-
-INSERT INTO matches VALUES (127,2,12,22,0,0,0);
-INSERT INTO matches VALUES (128,6,11,22,0,0,0);
-INSERT INTO matches VALUES (129,5,10,22,0,0,0);
-INSERT INTO matches VALUES (130,4,9,22,0,0,0);
-INSERT INTO matches VALUES (131,1,8,22,0,0,0);
-INSERT INTO matches VALUES (132,3,7,22,0,0,0);
-
-"""
+        return Match(
+            id_match=row["id_match"],
+            teamA_id=row["team_a_id"],
+            teamB_id=row["team_b_id"],
+            matchday=row["matchday"],
+            match_date_time=(
+                datetime.fromisoformat(row["match_date_time"])
+                if row["match_date_time"]
+                else None
+            ),
+            season=row["season"],
+            goals=[
+                Goal(
+                    id_team=goal["id_team"],
+                    id_player=goal["id_player"],
+                    own_goal=bool(goal["own_goal"]),
+                )
+                for goal in goal_rows
+            ],
+            yellow_cards=yellow_cards,
+            red_cards=red_cards,
+            jugado=bool(row["played"]),
+            phase=row["phase"],
+        )

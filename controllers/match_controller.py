@@ -25,5 +25,6 @@ def update_match_result(id_match: int, payload: dict):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-
-
+@router.get("/standings/{season}")
+def get_standings(season: int):
+    return match_service.get_standings(season)
