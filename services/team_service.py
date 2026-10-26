@@ -1,6 +1,4 @@
-from repositories.teams_repository import TeamsRepository
-
-teams_repo = TeamsRepository()
+from repositories.repository_instances import teams_repo
 
 def get_all_teams():
     return teams_repo.team_list

@@ -1,11 +1,9 @@
-from repositories.teams_repository import TeamsRepository
 from entities.match import Match
-from  repositories.matches_repository import MatchesRepository
-from repositories.season_stats_repository import SeasonStatsRepository
-from services import season_stats_service
-teams_repo = TeamsRepository()
-matches_repo = MatchesRepository()
-stats_repo = SeasonStatsRepository()
+
+from repositories.repository_instances import (
+    teams_repo,
+    matches_repo
+)
 
 def get_match_by_id(match_id):
     return matches_repo.get_match_by_id(match_id)
@@ -14,98 +12,79 @@ def get_matches_by_matchday(matchday: int):
     return matches_repo.get_matches_by_matchday(matchday)
 
 def get_match_result(id_match: int):
-    match = matches_repo.get_match_by_id(id_match)
-    if not match:
-        raise ValueError("Match not found")
-    return match
+    return matches_repo.get_match_by_id(id_match)
 
-def update_match_goals(match_id, goalsA, goalsB):
-    return matches_repo.update_match_goals(match_id,goalsA,goalsB)
+def get_top_scorers(season_id: int):
+    matches = matches_repo.get_played_matches_by_season(season_id)
+    contador = {}
+
+    for match in matches:
+        for goal in match.scorers:
+            if goal["own_goal"]:
+                continue
+            player_id = goal["player_id"]
+            contador[player_id] = (contador.get(player_id, 0) + 1)
+    return sorted(contador.items(),key=lambda x: x[1],reverse=True)
 
 def mark_match_as_played(match_id):
     return matches_repo.mark_match_as_played(match_id)
-
-def add_scorer(match_id, player_id):
-    return matches_repo.add_scorer(match_id, player_id)
 
 def update_points_to_winner(points, team_id: int):
     return teams_repo.update_points_to_winner(points, team_id)
 
 def update_points_to_both(points, teamA_id: int, teamB_id: int):
-    return teams_repo.update_points_to_both_teams(points, teamA_id, teamB_id)
+    return teams_repo.update_points_to_both_teams(points,teamA_id,teamB_id)
 
-def update_positive_goal_difference(goal_difference, team_id: int):
-    return teams_repo.update_positive_goal_difference(goal_difference, team_id)
+def update_positive_goal_difference(goal_difference,team_id: int):
+    return teams_repo.update_positive_goal_difference(goal_difference,team_id)
 
-def update_negative_goal_difference(goal_difference, team_id: int):
-    return teams_repo.update_negative_goal_difference(goal_difference, team_id)
+def update_negative_goal_difference(goal_difference,team_id: int):
+    return teams_repo.update_negative_goal_difference(goal_difference,team_id)
 
-def update_player_stats(match):
-    for player_id in match.scorers:
-        season_stats_service.add_goal(match.season, player_id)
-
-    for player_id in match.yellow_cards:
-        season_stats_service.add_yellow_card(match.season, player_id)
-
-    for player_id in match.red_cards:
-        season_stats_service.add_red_card(match.season, player_id)
+def calculate_score(match: Match):
+    goalsA = 0
+    goalsB = 0
+    for goal in match.scorers:
+        # gol normal
+        if not goal["own_goal"]:
+            if goal["team_id"] == match.teamA_id:
+                goalsA += 1
+            elif goal["team_id"] == match.teamB_id:
+                goalsB += 1
+        # autogol
+        else:
+            if goal["team_id"] == match.teamA_id:
+                goalsB += 1
+            elif goal["team_id"] == match.teamB_id:
+                goalsA += 1
+    return goalsA, goalsB
 
 def update_match_result(id_match: int, payload: dict):
     match = matches_repo.get_match_by_id(id_match)
-
-    match.goalsA = payload["goalsA"]
-    match.goalsB = payload["goalsB"]
     match.scorers = payload["scorers"]
     match.yellow_cards = payload["yellow_cards"]
     match.red_cards = payload["red_cards"]
-
+    goalsA, goalsB = calculate_score(match)
+    match.goalsA = goalsA
+    match.goalsB = goalsB
+    match.jugado = True
     updated_match = match_result(match)
-
     matches_repo.update_match(updated_match)
-
     return updated_match
 
-
-def match_result(match:Match):
-    # 1 Marco el partido como jugado
-    matches_repo.mark_match_as_played(match.id_match)
-
-    # 2 Guardo el resultado del partido
-    update_match_goals(match.id_match, match.goalsA, match.goalsB)
-
-    # 3 Actualizo estadísticas de jugadores (goles, amarillas, rojas)
-    update_player_stats(match)
-
-    # 4 Obtengo el resultado del partido con su propiedad pública
+def match_result(match: Match):
     result = match.result
-
-    # EMPATE
     if result is None:
         teams_repo.add_draw(match.teamA_id)
         teams_repo.add_draw(match.teamB_id)
-        update_points_to_both(1, match.teamA_id, match.teamB_id)
+        update_points_to_both(1,match.teamA_id,match.teamB_id)
         return match
 
-    # VICTORIA
-    winner, looser = result
+    winner, loser = result
     goal_difference = match.goal_difference
-
     teams_repo.add_win(winner)
-    update_points_to_winner(3, winner)
-    update_positive_goal_difference(goal_difference, winner)
-
-    teams_repo.add_loss(looser)
-    update_negative_goal_difference(goal_difference, looser)
-
+    update_points_to_winner(3,winner)
+    update_positive_goal_difference(goal_difference,winner)
+    teams_repo.add_loss(loser)
+    update_negative_goal_difference(goal_difference,loser)
     return match
-
-
-def add_win(winner_team_id):
-    return teams_repo.update_wins_to_winner(winner_team_id)
-
-def add_loss(looser_team_id):
-    return teams_repo.update_losses_to_looser(looser_team_id)
-
-def add_tie(teamA_id, teamB_id):
-    return teams_repo.update_draw_to_both(teamA_id,teamB_id)
-

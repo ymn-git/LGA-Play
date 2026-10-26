@@ -179,13 +179,35 @@ class MatchesRepository:
             Match(130, 4, 9, 22, 2026),
             Match(131, 1, 8, 22, 2026),
             Match(132, 3, 7, 22, 2026),
+
+
         ]
 
     def get_match_by_id(self, match_id):
         for match in self.matches:
             if match.id_match == match_id:
                 return match
+        raise ValueError("Match not found")
 
+    def get_played_matches_by_season(self, season_id):
+        matches = [
+            match
+            for match in self.matches
+            if match.season == season_id and match.jugado
+        ]
+
+        return matches
+    """
+    def get_played_matches_by_season(self, season_id):
+    cursor.execute("""
+    #    SELECT *
+    #    FROM matches
+    #    WHERE season_id = ?
+    #    AND jugado = true
+    """, (season_id,))
+
+    return cursor.fetchall()
+    """
     def get_matches_by_matchday(self, matchday: int):
         matches = [match for match in self.matches if match.matchday == matchday]
 
@@ -194,12 +216,6 @@ class MatchesRepository:
 
         return matches
 
-    def update_match_goals(self, match_id, goalsA, goalsB):
-        for match in self.matches:
-            if match.id_match == match_id:
-                match.goalsA = goalsA  # usa setter
-                match.goalsB = goalsB  # usa setter
-                return match
 
     def update_match(self, match: Match):
         # El objeto ya está en la lista, no hace falta reemplazar nada
@@ -209,13 +225,6 @@ class MatchesRepository:
         for match in self.matches:
             if match.id_match == match_id:
                 match.jugado = True  # usa setter
-                return match
-        raise ValueError("Match not found")
-
-    def add_scorer(self, match_id, player_id):
-        for match in self.matches:
-            if match.id_match == match_id:
-                match.scorers.append(player_id)  # usa propiedad scorers
                 return match
         raise ValueError("Match not found")
 

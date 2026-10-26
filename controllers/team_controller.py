@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from services import team_service
-
+from services import player_x_teams_service
 router = APIRouter(prefix="/teams")
 
 @router.get("")
@@ -20,6 +20,15 @@ def get_team_by_id(id_team: int):
         return team_service.get_team_by_id(id_team)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+#devuelve el plantel completo
+@router.get("/teams/{team_id}/players")
+def get_team_players(team_id: int):
+
+    return (
+        player_x_teams_service
+        .get_players_objects_by_team(team_id)
+    )
 
 @router.post("")
 def create_team(team: dict):
