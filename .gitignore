@@ -21,3 +21,5 @@ league.db
 # Sistema operativo
 .DS_Store
 Thumbs.db
+# Testing
+.pytest_cache/
