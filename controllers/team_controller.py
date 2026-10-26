@@ -7,13 +7,6 @@ router = APIRouter(prefix="/teams")
 def get_teams():
     return team_service.get_all_teams()
 
-@router.get("/standings")
-def get_standings():
-    try:
-        return team_service.get_standings()
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
 @router.get("/{id_team}")
 def get_team_by_id(id_team: int):
     try:

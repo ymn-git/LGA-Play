@@ -5,9 +5,6 @@ teams_repo = TeamsRepository()
 def get_all_teams():
     return teams_repo.team_list
 
-def get_standings():
-    return teams_repo.get_standings()
-
 def get_team_by_id(id_team: int):
     return teams_repo.get_team_by_id(id_team)
 
