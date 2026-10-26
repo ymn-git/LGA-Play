@@ -24,7 +24,8 @@ class LoginRequest(BaseModel):
 def login(credentials: LoginRequest):
     """
     Endpoint para autenticación de usuarios.
-    Valida las credenciales contra la clase de entidad `Users`.
+    Valida las credenciales contra la entidad `User`.
+    Permite autenticar con username o email.
     Devuelve los datos del usuario si es correcto o HTTP 401 si falla.
     """
     try:
@@ -47,3 +48,15 @@ def login(credentials: LoginRequest):
 def get_users():
     """Retorna la lista de usuarios precargados en el sistema."""
     return user_service.get_all_users()
+
+
+@router.get("/users/{id}", summary="Obtener usuario por ID")
+def get_user(id: int):
+    """Retorna un usuario por su ID."""
+    try:
+        return user_service.get_user_by_id(id=id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
