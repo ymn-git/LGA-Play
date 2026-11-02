@@ -1,5 +1,4 @@
 from entities.match import Match
-from services.team_service import teams_repo
 
 class MatchesRepository:
     def __init__(self):
@@ -180,7 +179,6 @@ class MatchesRepository:
             Match(131, 1, 8, 22, 2026),
             Match(132, 3, 7, 22, 2026),
 
-
         ]
 
     def get_match_by_id(self, match_id):
@@ -195,7 +193,6 @@ class MatchesRepository:
             for match in self.matches
             if match.season == season_id and match.jugado
         ]
-
         return matches
     """
     def get_played_matches_by_season(self, season_id):
@@ -215,7 +212,6 @@ class MatchesRepository:
             raise ValueError(f"No matches found for matchday {matchday}")
 
         return matches
-
 
     def update_match(self, match: Match):
         # El objeto ya está en la lista, no hace falta reemplazar nada

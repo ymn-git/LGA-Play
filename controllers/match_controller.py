@@ -20,9 +20,9 @@ def get_top_scorers(season_id: int):
     return match_service.get_top_scorers(season_id)
 
 @router.patch("/{id_match}/result")
-def update_match_result(id_match: int,payload: MatchResultUpdate):
+def update_match_result(id_match: int, payload: MatchResultUpdate):
     try:
-        return match_service.update_match_result(id_match,payload.model_dump())
+        return match_service.update_match_result(id_match, payload.model_dump())
     except ValueError as e:
         raise HTTPException(status_code=404,detail=str(e))
 

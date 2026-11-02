@@ -25,35 +25,20 @@ class PlayersRepository:
         self.players.append(player)
         return player
 
-    def update_full(
-        self,
-        id_player: int,
-        updated_player: Player
-    ):
+    def update_full(self, id_player: int, updated_player: Player):
         player = self.get_by_id(id_player)
-
         player.name = updated_player.name
         player.position = updated_player.position
-
         return player
 
-    def update_partial(
-        self,
-        id_player: int,
-        name=None,
-        position=None
-    ):
+    def update_partial(self, id_player: int, name=None, position=None):
         player = self.get_by_id(id_player)
-
         if name is not None:
             player.name = name
-
         if position is not None:
             player.position = position
-
         return player
 
     def delete(self, id_player: int):
         player = self.get_by_id(id_player)
-
         self.players.remove(player)

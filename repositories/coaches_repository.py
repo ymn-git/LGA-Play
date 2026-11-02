@@ -16,7 +16,6 @@ class CoachesRepository:
         for coach in self.coaches:
             if coach.id_person == id_coach:
                 return coach
-
         raise ValueError("Coach not found")
 
     def create(self, coach: Coach):
