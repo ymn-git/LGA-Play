@@ -6,13 +6,6 @@ router = APIRouter(prefix="/teams")
 def get_teams():
     return team_service.get_all_teams()
 
-@router.get("/standings")
-def get_standings():
-    try:
-        return team_service.get_standings()
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
 @router.get("/{id_team}")
 def get_team_by_id(id_team: int):
     try:
@@ -23,9 +16,12 @@ def get_team_by_id(id_team: int):
 #devuelve el plantel completo
 @router.get("/{team_id}/players")
 def get_team_players(team_id: int):
-    return team_service.get_players_objects_by_team(team_id)
+    try:
+        return team_service.get_players_objects_by_team(team_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/teams/{team_id}/coaches")
+@router.get("/{team_id}/coaches")
 def get_team_coach(team_id: int):
     try:
         return team_service.get_coaches_objects_by_team(team_id)
@@ -39,7 +35,7 @@ def assign_player_to_team(team_id: int,player_id: int):
     except ValueError as e:
         raise HTTPException(status_code=400,detail=str(e))
 
-@router.post("/teams/{team_id}/coaches/{coach_id}")
+@router.post("/{team_id}/coaches/{coach_id}")
 def assign_coach_to_team(team_id: int,coach_id: int):
     try:
         return team_service.assign_coach_to_team(coach_id,team_id)
@@ -64,5 +60,13 @@ def update_team_name(id_team: int, new_name: str):
 def delete_team(id_team: int):
     try:
         return team_service.delete_team(id_team)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{team_id}/stats")
+def get_team_stats(team_id: int, season: int):
+    try:
+        return team_service.get_team_stats(team_id, season)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

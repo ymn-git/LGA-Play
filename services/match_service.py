@@ -1,18 +1,21 @@
 from entities.match import Match
-
+from Schemas.match_schema import MatchResultUpdate
 from repositories.repository_instances import (
     teams_repo,
     matches_repo
 )
 
 def get_match_by_id(match_id):
-    return matches_repo.get_match_by_id(match_id)
+    return _with_score(matches_repo.get_match_by_id(match_id))
 
-def get_matches_by_matchday(matchday: int):
-    return matches_repo.get_matches_by_matchday(matchday)
+def get_matches_by_matchday(matchday: int, season: int):
+    return [
+        _with_score(m)
+        for m in matches_repo.get_matches_by_matchday(matchday, season)
+    ]
 
 def get_match_result(id_match: int):
-    return matches_repo.get_match_by_id(id_match)
+    return get_match_by_id(id_match)
 
 def get_top_scorers(season_id: int):
     matches = matches_repo.get_played_matches_by_season(season_id)
@@ -59,32 +62,70 @@ def calculate_score(match: Match):
                 goalsA += 1
     return goalsA, goalsB
 
-def update_match_result(id_match: int, payload: dict):
+def update_match_result(id_match: int, payload: MatchResultUpdate):
     match = matches_repo.get_match_by_id(id_match)
-    match.scorers = payload["scorers"]
-    match.yellow_cards = payload["yellow_cards"]
-    match.red_cards = payload["red_cards"]
-    goalsA, goalsB = calculate_score(match)
-    match.goalsA = goalsA
-    match.goalsB = goalsB
+
+    for g in payload.scorers:
+        if g.team_id not in (match.teamA_id, match.teamB_id):
+            raise ValueError(f"Team {g.team_id} no juega este partido")
+
+    match.scorers = [g.model_dump() for g in payload.scorers] #.model_dump desempaqueta en clave/valor
+    match.yellow_cards = payload.yellow_cards
+    match.red_cards = payload.red_cards
+    match.goalsA, match.goalsB = calculate_score(match)
     match.jugado = True
-    updated_match = match_result(match)
-    matches_repo.update_match(updated_match)
-    return updated_match
+    return matches_repo.update_match(match)
 
-def match_result(match: Match):
-    result = match.result
-    if result is None:
-        teams_repo.add_draw(match.teamA_id)
-        teams_repo.add_draw(match.teamB_id)
-        update_points_to_both(1,match.teamA_id,match.teamB_id)
-        return match
 
-    winner, loser = result
-    goal_difference = match.goal_difference
-    teams_repo.add_win(winner)
-    update_points_to_winner(3,winner)
-    update_positive_goal_difference(goal_difference,winner)
-    teams_repo.add_loss(loser)
-    update_negative_goal_difference(goal_difference,loser)
+def get_standings(season_id: int):
+    table = {
+        t.id_team: {
+            "id_team": t.id_team, "name": t.name, "played": 0, "wins": 0,
+            "draws": 0, "losses": 0, "gf": 0, "ga": 0, "points": 0,
+        }
+        for t in teams_repo.get_all_teams()
+    }
+
+    for match in matches_repo.get_played_matches_by_season(season_id):
+        goalsA, goalsB = calculate_score(match)
+        for team_id, gf, ga in (
+            (match.teamA_id, goalsA, goalsB),
+            (match.teamB_id, goalsB, goalsA),
+        ):
+            row = table[team_id]
+            row["played"] += 1
+            row["gf"] += gf
+            row["ga"] += ga
+            if gf > ga:
+                row["wins"] += 1
+                row["points"] += 3
+            elif gf == ga:
+                row["draws"] += 1
+                row["points"] += 1
+            else:
+                row["losses"] += 1
+
+    for row in table.values():
+        row["goal_difference"] = row["gf"] - row["ga"]
+
+    rows = sorted(
+        table.values(),
+        key=lambda r: (r["points"], r["goal_difference"], r["gf"]),
+        reverse=True,
+    )
+    for pos, row in enumerate(rows, start=1):
+        row["position"] = pos
+    return rows
+
+def get_next_matches(season_id: int):
+    matchday = matches_repo.get_next_matchday(season_id)
+    if matchday is None:
+        raise ValueError("La temporada ya terminó")
+    return matches_repo.get_matches_by_matchday(matchday, season_id)
+
+def get_qualified(season_id: int):
+    return get_standings(season_id)[:8] #devuelve los primeros 8
+
+def _with_score(match: Match):
+    match.goalsA, match.goalsB = calculate_score(match)
     return match
