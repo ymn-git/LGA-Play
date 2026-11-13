@@ -14,8 +14,8 @@ class Token(BaseModel):
     token_type: str
 
 class UserResponse(BaseModel):
-    user_id: int
-    user_email: EmailStr
+    id: int
+    email: EmailStr
     username: str
     is_active: bool
     is_admin: bool
