@@ -10,7 +10,7 @@ class MatchesRepository:
         if not rows:
             return []
         ids = [r["id_match"] for r in rows]
-        marks = ",".join("?" * len(ids))
+        marks = ",".join(["?"] * len(ids))
         goals = self.conn.execute(
             f"SELECT id_match, id_team, id_player, own_goal FROM goals "
             f"WHERE id_match IN ({marks})", ids
@@ -101,15 +101,12 @@ class MatchesRepository:
         return match
 
     def mark_match_as_played(self, match_id):
-        match = self.get_match_by_id(match_id)
+        match = self.get_match_by_id(match_id)  # ValueError si no existe
+        with self.conn:
+            self.conn.execute(
+                "UPDATE matches SET jugado = 1 WHERE id_match = ?", (match_id,)
+            )
         match.jugado = True
-
-        self.conn.execute(
-            "UPDATE matches SET jugado = 1 WHERE id_match = ?",
-            (match_id,)
-        )
-        self.conn.commit()
-
         return match
 
     def get_next_matchday(self, season):

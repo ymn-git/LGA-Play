@@ -32,18 +32,6 @@ def get_top_scorers(season_id: int):
 def mark_match_as_played(match_id):
     return matches_repo.mark_match_as_played(match_id)
 
-def update_points_to_winner(points, team_id: int):
-    return teams_repo.update_points_to_winner(points, team_id)
-
-def update_points_to_both(points, teamA_id: int, teamB_id: int):
-    return teams_repo.update_points_to_both_teams(points,teamA_id,teamB_id)
-
-def update_positive_goal_difference(goal_difference,team_id: int):
-    return teams_repo.update_positive_goal_difference(goal_difference,team_id)
-
-def update_negative_goal_difference(goal_difference,team_id: int):
-    return teams_repo.update_negative_goal_difference(goal_difference,team_id)
-
 def calculate_score(match: Match):
     goalsA = 0
     goalsB = 0
@@ -75,7 +63,6 @@ def update_match_result(id_match: int, payload: MatchResultUpdate):
     match.goalsA, match.goalsB = calculate_score(match)
     match.jugado = True
     return matches_repo.update_match(match)
-
 
 def get_standings(season_id: int):
     table = {
