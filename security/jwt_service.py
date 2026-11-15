@@ -16,12 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
 )
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-
-if not SECRET_KEY:
-    raise ValueError(
-        "La variable de entorno SECRET_KEY no está configurada"
-    )
+SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-lga-play-key-2026")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
