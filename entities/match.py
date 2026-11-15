@@ -8,7 +8,7 @@ class Match:
                  teamB_id: int,
                  matchday: int,
                  season: int,
-                 full_date: datetime,
+                 full_date: datetime = None,
 
                  scorers: List[dict] = None,
                  yellow_cards: List[int] = None,
