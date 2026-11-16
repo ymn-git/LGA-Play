@@ -4,11 +4,11 @@ from sqlalchemy.orm import Session
 from repositories.repository_instances import (teams_repo,matches_repo,playoff_repo)
 
 def get_match_by_id(match_id):
-    return _with_score(matches_repo.get_match_by_id(match_id))
+    return with_score(matches_repo.get_match_by_id(match_id))
 
 def get_matches_by_matchday(matchday: int, season: int):
     return [
-        _with_score(m)
+        with_score(m)
         for m in matches_repo.get_matches_by_matchday(matchday, season)
     ]
 
