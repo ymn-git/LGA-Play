@@ -32,7 +32,7 @@ class AuthService:
         return self.user_repository.create(user)
 
     def login(self, email: str, password: str) -> dict:
-        user = self.user_repository.get_by_email(email)
+        user = self.user_repository.get_by_username(email)
 
         if user is None:
             raise HTTPException(
