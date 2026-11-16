@@ -1,25 +1,24 @@
-
-from repositories.players_repository import PlayersRepository
-from repositories.teams_repository import TeamsRepository
-from repositories.player_x_team_repository import PlayerXTeamsRepository
-from repositories.matches_repository import MatchesRepository
+from app.database import SessionLocal
 from repositories.coaches_repository import CoachesRepository
 from repositories.coach_x_team_repository import CoachXTeamsRepository
+from repositories.players_repository import PlayersRepository
+from repositories.player_x_team_repository import PlayerXTeamsRepository
+from repositories.teams_repository import TeamsRepository
+from repositories.matches_repository import MatchesRepository
+from repositories.users_repository import UserRepository
+from repositories.playoff_repository import PlayoffRepository
 
-import sqlite3
+db = SessionLocal()
 
-conn = sqlite3.connect("nombre_base_datos.db", check_same_thread=False)
-conn.row_factory = sqlite3.Row
-conn.execute("PRAGMA foreign_keys = ON")#evita borrar algo que tenga FK
+teams_repo = TeamsRepository(db)
+players_repo = PlayersRepository(db)
+coaches_repo = CoachesRepository(db)
 
-matches_repo = MatchesRepository(conn)
-players_repo = PlayersRepository()
+matches_repo = MatchesRepository(db)
 
-teams_repo = TeamsRepository(conn)
+player_x_team_repo = PlayerXTeamsRepository(db)
+coach_x_team_repo = CoachXTeamsRepository(db)
 
-player_x_team_repo = PlayerXTeamsRepository()
-
-coaches_repo = CoachesRepository()
-
-coach_x_team_repo = CoachXTeamsRepository()
+users_repo = UserRepository(db)
+playoff_repo = PlayoffRepository(db)
 

@@ -1,4 +1,9 @@
-class Team:
-    def __init__(self,id_team:int, name:str):
-        self.id_team = id_team
-        self.name = name
+from sqlalchemy import Column, Integer, String
+from app.database import Base
+
+
+class Team(Base):
+    __tablename__ = "teams"
+
+    id_team = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True)

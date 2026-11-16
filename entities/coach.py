@@ -1,5 +1,9 @@
-from entities.person import Person
+from sqlalchemy import Column, Integer, String
+from app.database import Base
 
-class Coach(Person):
-    def __init__(self, id_person, name):
-        super().__init__(id_person, name, role="coach")
+
+class Coach(Base):
+    __tablename__ = "coaches"
+
+    id_coach = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)

@@ -1,6 +1,10 @@
-from entities.person import Person
+from sqlalchemy import Column, Integer, String
+from app.database import Base
 
-class Player(Person):
-    def __init__(self, id_person:int, name, position):
-        super().__init__(id_person, name, role="player")
-        self.position = position
+
+class Player(Base):
+    __tablename__ = "players"
+
+    id_player = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    position = Column(String, nullable=False)

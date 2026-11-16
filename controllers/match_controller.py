@@ -4,8 +4,30 @@ from schemas.match_schema import MatchResultUpdate
 from fastapi import Depends
 from security.jwt_service import get_current_user
 from models.user import User
+from sqlalchemy.orm import Session
+from schemas.playoff_schema import PlayoffMatchCreate
+from app.database import get_db
 
 router = APIRouter(prefix="/matches")
+
+@router.post("/playoffs", status_code=201)
+def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db)):
+    try:
+        match = match_service.create_playoff_match(
+            db, data.season, data.phase, data.bracket_group, data.leg,
+            data.team_a_id, data.team_b_id, data.full_date,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    return match_service.with_score(match)
+
+
+@router.get("/playoffs/{season}/{phase}/{bracket_group}")
+def get_bracket(season: int, phase: str, bracket_group: int):
+    matches = match_service.get_playoff_bracket(season,phase,bracket_group)
+    if not matches:
+        raise HTTPException(status_code=404, detail="Llave no encontrada")
+    return [match_service.with_score(m) for m in matches]
 
 
 @router.get("/matchday/{matchday}")

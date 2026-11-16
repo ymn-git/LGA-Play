@@ -1,94 +1,53 @@
-from typing import List
-from datetime import datetime
 
-class Match:
-    def __init__(self,
-                 id_match: int,
-                 teamA_id: int,
-                 teamB_id: int,
-                 matchday: int,
-                 season: int,
-                 full_date: datetime,
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
 
-                 scorers: List[dict] = None,
-                 yellow_cards: List[int] = None,
-                 red_cards: List[int] = None,
-                 goalsA: int = 0,
-                 goalsB: int = 0,
-                 jugado: bool = False):
+from app.database import Base
 
-        self.id_match = id_match
-        self.teamA_id = teamA_id
-        self.teamB_id = teamB_id
-        self.matchday = matchday
-        self.season = season
 
-        self._goalsA = goalsA
-        self._goalsB = goalsB
-        self._jugado = jugado
+class Match(Base):
+    __tablename__ = "matches"
 
-        self._scorers = scorers or []
-        self._yellow_cards = yellow_cards or []
-        self._red_cards = red_cards or []
+    id_match = Column(Integer, primary_key=True, index=True)
 
-    @property
-    def goalsA(self) -> int:
-        return self._goalsA
+    teamA_id = Column(
+        Integer,
+        ForeignKey("teams.id_team"),
+        nullable=False
+    )
 
-    @goalsA.setter
-    def goalsA(self, value: int):
-        self._goalsA = value
+    teamB_id = Column(
+        Integer,
+        ForeignKey("teams.id_team"),
+        nullable=False
+    )
 
-    @property
-    def goalsB(self) -> int:
-        return self._goalsB
+    matchday = Column(Integer, nullable=False)
 
-    @goalsB.setter
-    def goalsB(self, value: int):
-        self._goalsB = value
+    season = Column(Integer, nullable=False)
 
-    @property
-    def jugado(self) -> bool:
-        return self._jugado
+    full_date = Column(DateTime, nullable=False)
 
-    @jugado.setter
-    def jugado(self, value: bool):
-        self._jugado = value
+    goalsA = Column(Integer, nullable=False, default=0)
+    goalsB = Column(Integer, nullable=False, default=0)
 
-    @property
-    def scorers(self) -> List[dict]:
-        return self._scorers
+    jugado = Column(Boolean, nullable=False, default=False)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    @scorers.setter
-    def scorers(self, value: List[dict]):
-        self._scorers = value
-
-    @property
-    def yellow_cards(self) -> List[int]:
-        return self._yellow_cards
-
-    @yellow_cards.setter
-    def yellow_cards(self, value: List[int]):
-        self._yellow_cards = value
-
-    @property
-    def red_cards(self) -> List[int]:
-        return self._red_cards
-
-    @red_cards.setter
-    def red_cards(self, value: List[int]):
-        self._red_cards = value
-
+        self.scorers = []
+        self.yellow_cards = []
+        self.red_cards = []
     @property
     def result(self):
-        if self._goalsA == self._goalsB:
+        if self.goalsA == self.goalsB:
             return None
+
         return (
             (self.teamA_id, self.teamB_id)
-            if self._goalsA > self._goalsB
+            if self.goalsA > self.goalsB
             else (self.teamB_id, self.teamA_id)
         )
 
     @property
-    def goal_difference(self) -> int:
-        return abs(self._goalsA - self._goalsB)
+    def goal_difference(self):
+        return abs(self.goalsA - self.goalsB)

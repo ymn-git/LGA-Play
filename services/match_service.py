@@ -1,10 +1,7 @@
 from entities.match import Match
 from schemas.match_schema import MatchResultUpdate
-
-from repositories.repository_instances import (
-    teams_repo,
-    matches_repo
-)
+from sqlalchemy.orm import Session
+from repositories.repository_instances import (teams_repo,matches_repo,playoff_repo)
 
 def get_match_by_id(match_id):
     return _with_score(matches_repo.get_match_by_id(match_id))
@@ -113,6 +110,71 @@ def get_next_matches(season_id: int):
 def get_qualified(season_id: int):
     return get_standings(season_id)[:8]  # devuelve los primeros 8
 
-def _with_score(match: Match):
+def with_score(match: Match):
     match.goalsA, match.goalsB = calculate_score(match)
+    return match
+
+def get_playoff_bracket(
+    season,
+    phase,
+    bracket_group
+):
+    playoffs = playoff_repo.get_by_bracket(
+        season,
+        phase,
+        bracket_group
+    )
+
+    return [p.match for p in playoffs]
+
+
+def create_playoff_match(
+    db: Session,
+    season,
+    phase,
+    bracket_group,
+    leg,
+    team_a_id,
+    team_b_id,
+    full_date,
+    matchday=0
+):
+
+    if leg not in (1, 2):
+        raise ValueError("leg debe ser 1 o 2")
+
+    if playoff_repo.leg_exists(
+        season,
+        phase,
+        bracket_group,
+        leg
+    ):
+        raise ValueError(
+            "Ya existe ese partido en la llave"
+        )
+
+    try:
+
+        match = matches_repo.add(
+            team_a_id,
+            team_b_id,
+            matchday,
+            season,
+            full_date
+        )
+
+        playoff_repo.add(
+            match.id_match,
+            season,
+            phase,
+            bracket_group,
+            leg
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
+
     return match
