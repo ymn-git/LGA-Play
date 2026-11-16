@@ -129,8 +129,10 @@ class MatchesRepository:
 
     def update_match(self, match: Match):
 
-        db_match = self.get_match_by_id(
-            match.id_match
+        db_match = (
+            self.db.query(Match)
+            .filter(Match.id_match == match.id_match)
+            .first()
         )
 
         db_match.goalsA = match.goalsA
