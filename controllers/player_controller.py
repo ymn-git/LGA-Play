@@ -13,6 +13,13 @@ router = APIRouter(prefix="/players")
 def get_players():
     return player_service.get_players()
 
+@router.get("/{player_id}/stats")
+def get_player_stats(player_id: int, season: Optional[int] = None):
+    try:
+        return player_service.get_player_stats(player_id, season)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/{player_id}/team")
 def get_current_team_of_player(player_id: int):

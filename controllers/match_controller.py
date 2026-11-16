@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+
+from repositories.repository_instances import playoff_repo, matches_repo
 from services import match_service
 from schemas.match_schema import MatchResultUpdate
 from fastapi import Depends
@@ -11,29 +13,31 @@ from app.database import get_db
 router = APIRouter(prefix="/matches")
 
 @router.post("/playoffs", status_code=201)
-def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db),
+def create_playoff(data: PlayoffMatchCreate,
                    current_user: User = Depends(get_current_user)):
     try:
         match = match_service.create_playoff_match(
-            db, data.season, data.phase, data.bracket_group, data.leg,
+            data.season, data.phase, data.bracket_group, data.leg,
             data.team_a_id, data.team_b_id, data.full_date,
         )
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
-    return match_service.with_score(match)
-
+    return match_service._with_score(match)
 
 @router.get("/playoffs/{season}/{phase}/{bracket_group}")
 def get_bracket(season: int, phase: str, bracket_group: int):
     matches = match_service.get_playoff_bracket(season,phase,bracket_group)
     if not matches:
         raise HTTPException(status_code=404, detail="Llave no encontrada")
-    return [match_service.with_score(m) for m in matches]
+    return [match_service._with_score(m) for m in matches]
 
 
 @router.get("/matchday/{matchday}")
 def get_matches_by_matchday(matchday: int, season: int):
-    return match_service.get_matches_by_matchday(matchday,season)
+    try:
+        return match_service.get_matches_by_matchday(matchday, season)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/season/{season_id}/top-scorers")
 def get_top_scorers(season_id: int):
@@ -43,8 +47,10 @@ def get_top_scorers(season_id: int):
 def update_match_result(id_match: int, payload: MatchResultUpdate, current_user: User = Depends(get_current_user)):
     try:
         return match_service.update_match_result(id_match, payload)
-    except ValueError as e:
+    except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/standings/{season}")
 def standings(season: int):
@@ -68,5 +74,3 @@ def get_match_result(id_match: int):
         return match_service.get_match_result(id_match)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-

@@ -9,6 +9,9 @@ def get_players():
 def get_player_by_id(id_player: int):
     return players_repo.get_by_id(id_player)
 
+def get_player_stats(id_player: int, season=None):
+    return players_repo.get_stats(id_player, season)
+
 def create_player(player: dict):
     if "id" not in player or "name" not in player or "position" not in player:
         raise ValueError("Missing required fields")
