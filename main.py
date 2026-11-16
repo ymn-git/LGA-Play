@@ -21,6 +21,7 @@ from controllers import (
     match_controller,
     coach_controller,
     user_controller,
+    auth_controller,
 )
 
 # Crear tablas si no existen
@@ -44,3 +45,5 @@ app.include_router(team_controller.router)
 app.include_router(match_controller.router)
 app.include_router(coach_controller.router)
 app.include_router(user_controller.router)
+
+app.include_router(auth_controller.router)
