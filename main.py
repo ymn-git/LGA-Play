@@ -1,4 +1,4 @@
-# Importar entidades para que SQLAlchemy registre las tablas
+﻿# Importar entidades para que SQLAlchemy registre las tablas
 from entities.team import Team
 from entities.player import Player
 from entities.coach import Coach
@@ -9,10 +9,12 @@ from entities.player_x_team import PlayerXTeam
 from entities.coach_x_team import CoachXTeam
 from entities.playoff import Playoff
 from models.user import User
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
+from app.config import CORS_ORIGINS
 
 from controllers import (
     player_controller,
@@ -29,10 +31,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://lga-play-frontend.vercel.app",
-    ],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
