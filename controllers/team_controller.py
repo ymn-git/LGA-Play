@@ -33,35 +33,35 @@ def get_team_coach(team_id: int):
         raise HTTPException(status_code=404,detail=str(e))
 
 @router.post("/{team_id}/players/{player_id}")
-def assign_player_to_team(team_id: int,player_id: int):
+def assign_player_to_team(team_id: int,player_id: int, current_user: User = Depends(get_current_user)):
     try:
         return team_service.assign_player_to_team(team_id,player_id)
     except ValueError as e:
         raise HTTPException(status_code=400,detail=str(e))
 
 @router.post("/{team_id}/coaches/{coach_id}")
-def assign_coach_to_team(team_id: int,coach_id: int):
+def assign_coach_to_team(team_id: int,coach_id: int, current_user: User = Depends(get_current_user)):
     try:
         return team_service.assign_coach_to_team(coach_id,team_id)
     except ValueError as e:
         raise HTTPException(status_code=400,detail=str(e))
 
 @router.post("")
-def create_team(team: dict):
+def create_team(team: dict, current_user: User = Depends(get_current_user)):
     try:
         return team_service.create_team(team)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/{id_team}")
-def update_team_name(id_team: int, new_name: str):
+def update_team_name(id_team: int, new_name: str, current_user: User = Depends(get_current_user)):
     try:
         return team_service.update_team_name(id_team, new_name)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.delete("/{id_team}")
-def delete_team(id_team: int):
+def delete_team(id_team: int, current_user: User = Depends(get_current_user)):
     try:
         return team_service.delete_team(id_team)
     except ValueError as e:

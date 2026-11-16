@@ -11,7 +11,8 @@ from app.database import get_db
 router = APIRouter(prefix="/matches")
 
 @router.post("/playoffs", status_code=201)
-def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db)):
+def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db),
+                   current_user: User = Depends(get_current_user)):
     try:
         match = match_service.create_playoff_match(
             db, data.season, data.phase, data.bracket_group, data.leg,
