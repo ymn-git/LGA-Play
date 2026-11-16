@@ -1,14 +1,14 @@
+from collections import Counter
 from entities.match import Match
 from schemas.match_schema import MatchResultUpdate
-from sqlalchemy.orm import Session
 from repositories.repository_instances import (teams_repo,matches_repo,playoff_repo)
 
 def get_match_by_id(match_id):
-    return _with_score(matches_repo.get_match_by_id(match_id))
+    return with_score(matches_repo.get_match_by_id(match_id))
 
 def get_matches_by_matchday(matchday: int, season: int):
     return [
-        _with_score(m)
+        with_score(m)
         for m in matches_repo.get_matches_by_matchday(matchday, season)
     ]
 
@@ -49,7 +49,10 @@ def calculate_score(match: Match):
     return goalsA, goalsB
 
 def update_match_result(id_match: int, payload: MatchResultUpdate):
-    match = matches_repo.get_match_by_id(id_match)
+    try:
+        match = matches_repo.get_match_by_id(id_match)
+    except ValueError as exc:
+        raise LookupError("Match not found") from exc
     for g in payload.scorers:
         if g.team_id not in (match.teamA_id, match.teamB_id):
             raise ValueError(f"Team {g.team_id} no juega este partido")
@@ -57,6 +60,10 @@ def update_match_result(id_match: int, payload: MatchResultUpdate):
     match.scorers = [g.model_dump() for g in payload.scorers]  # .model_dump desempaqueta en clave/valor
     match.yellow_cards = payload.yellow_cards
     match.red_cards = payload.red_cards
+    yellow_counts = Counter(match.yellow_cards)
+    for player_id, count in yellow_counts.items():
+        if count >= 2 and player_id not in match.red_cards:
+            match.red_cards.append(player_id)
     match.goalsA, match.goalsB = calculate_score(match)
     match.jugado = True
     return matches_repo.update_match(match)
@@ -70,7 +77,7 @@ def get_standings(season_id: int):
         for t in teams_repo.get_all_teams()
     }
 
-    for match in matches_repo.get_played_matches_by_season(season_id):
+    for match in matches_repo.get_played_matches_by_season(season_id, include_playoffs=False):
         goalsA, goalsB = calculate_score(match)
         for team_id, gf, ga in (
                 (match.teamA_id, goalsA, goalsB),
@@ -127,9 +134,11 @@ def get_playoff_bracket(
 
     return [p.match for p in playoffs]
 
+SINGLE_LEG_PHASES = {"final", "finalisima"}
+
 
 def create_playoff_match(
-    db: Session,
+
     season,
     phase,
     bracket_group,
@@ -143,38 +152,21 @@ def create_playoff_match(
     if leg not in (1, 2):
         raise ValueError("leg debe ser 1 o 2")
 
-    if playoff_repo.leg_exists(
-        season,
-        phase,
-        bracket_group,
-        leg
-    ):
-        raise ValueError(
-            "Ya existe ese partido en la llave"
-        )
+        if phase in SINGLE_LEG_PHASES and leg != 1:
+            raise ValueError(f"{phase} es partido único (leg=1)")
 
-    try:
+        if team_a_id == team_b_id:
+            raise ValueError("Un equipo no puede jugar contra sí mismo")
+        if playoff_repo.leg_exists(season, phase, bracket_group, leg):
+            raise ValueError("Ya existe ese partido en la llave")
 
-        match = matches_repo.add(
-            team_a_id,
-            team_b_id,
-            matchday,
-            season,
-            full_date
-        )
+        try:
+            match = matches_repo.add(team_a_id, team_b_id, matchday, season, full_date)
+            playoff_repo.add(match.id_match, season, phase, bracket_group, leg)
+            matches_repo.db.commit()
 
-        playoff_repo.add(
-            match.id_match,
-            season,
-            phase,
-            bracket_group,
-            leg
-        )
+        except Exception:
+            matches_repo.db.rollback()
+            raise
 
-        db.commit()
-
-    except Exception:
-        db.rollback()
-        raise
-
-    return match
+    return matches_repo.get_match_by_id(match.id_match)

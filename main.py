@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 
 from controllers import (
+    auth_controller,
     player_controller,
     team_controller,
     match_controller,
@@ -43,3 +44,4 @@ app.include_router(team_controller.router)
 app.include_router(match_controller.router)
 app.include_router(coach_controller.router)
 app.include_router(user_controller.router)
+app.include_router(auth_controller.router)

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class PlayoffMatchCreate(BaseModel):
     season: int
-    phase: Literal["octavos", "cuartos", "semis", "final"]
+    phase: Literal["cuartos", "semis", "final", "finalisima"]
     bracket_group: int
     leg: Literal[1, 2] = 1
 
@@ -14,4 +14,3 @@ class PlayoffMatchCreate(BaseModel):
 
     full_date: datetime
 
-    matchday: int = 0
