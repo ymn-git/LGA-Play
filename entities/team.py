@@ -7,3 +7,4 @@ class Team(Base):
 
     id_team = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, unique=True)
+    shield_url = Column(String, nullable=True)
