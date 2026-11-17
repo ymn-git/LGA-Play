@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
-
+from sqlalchemy import func
+from typing import Optional
 from entities.player import Player
-
+from entities.card import Card
+from entities.goal import Goal
+from entities.match import Match
 
 class PlayersRepository:
 
@@ -72,3 +75,40 @@ class PlayersRepository:
         self.db.commit()
 
         return player
+
+    def get_stats(self, id_player: int, season: Optional[int] = None):
+        self.get_by_id(id_player)
+
+        goals_query = (
+            self.db.query(func.count(Goal.id))
+            .join(Match, Match.id_match == Goal.id_match)
+            .filter(
+                Goal.id_player == id_player,
+                Goal.own_goal.is_(False),
+                Match.jugado.is_(True)
+            )
+        )
+        if season is not None:
+            goals_query = goals_query.filter(Match.season == season)
+        goals = goals_query.scalar()
+
+        cards_query = (
+            self.db.query(Card.type, func.count(Card.id))
+            .join(Match, Match.id_match == Card.id_match)
+            .filter(
+                Card.id_player == id_player,
+                Card.type.in_(("yellow", "red")),
+                Match.jugado.is_(True)
+            )
+        )
+        if season is not None:
+            cards_query = cards_query.filter(Match.season == season)
+        cards = cards_query.group_by(Card.type).all()
+        card_counts = {card_type: count for card_type, count in cards}
+
+        return {
+            "player_id": id_player,
+            "goals": goals or 0,
+            "yellow_cards": card_counts.get("yellow", 0),
+            "red_cards": card_counts.get("red", 0)
+        }

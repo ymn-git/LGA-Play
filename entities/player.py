@@ -7,4 +7,4 @@ class Player(Base):
 
     id_player = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    position = Column(String, nullable=False)
+    position = Column(String, nullable=True)

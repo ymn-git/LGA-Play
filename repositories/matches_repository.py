@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from entities.match import Match
 from entities.goal import Goal
 from entities.card import Card
-
+from entities.playoff import Playoff
 
 class MatchesRepository:
 
@@ -81,21 +81,15 @@ class MatchesRepository:
             for match in matches
         ]
 
-    def get_played_matches_by_season(self, season):
-
-        matches = (
-            self.db.query(Match)
-            .filter(
-                Match.season == season,
-                Match.jugado.is_(True)
-            )
-            .all()
+    def get_played_matches_by_season(self, season, include_playoffs=True):
+        q = self.db.query(Match).filter(
+            Match.season == season,
+            Match.jugado.is_(True)
         )
 
-        return [
-            self._load_extras(match)
-            for match in matches
-        ]
+        if not include_playoffs:
+            q = q.filter(Match.id_match.notin_(self._playoff_ids()))
+        return [self._load_extras(m) for m in q.all()]
 
     def get_played_matches_by_team(
         self,
@@ -134,6 +128,8 @@ class MatchesRepository:
             .filter(Match.id_match == match.id_match)
             .first()
         )
+        if db_match is None:
+            raise ValueError("Match not found")
 
         db_match.goalsA = match.goalsA
         db_match.goalsB = match.goalsB
@@ -202,9 +198,21 @@ class MatchesRepository:
             )
             .filter(
                 Match.season == season,
-                Match.jugado.is_(False)
+                Match.jugado.is_(False),
+                Match.id_match.notin_(self._playoff_ids())
             )
             .scalar()
         )
 
         return row
+
+    def add(self, team_a_id, team_b_id, matchday, season, full_date):
+        match = Match(teamA_id=team_a_id, teamB_id=team_b_id, matchday=matchday,
+                      season=season, full_date=full_date,
+                      goalsA=0, goalsB=0, jugado=False)
+        self.db.add(match)
+        self.db.flush()
+        return match
+
+    def _playoff_ids(self):
+        return self.db.query(Playoff.match_id)

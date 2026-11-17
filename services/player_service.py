@@ -47,3 +47,6 @@ def get_current_team_of_player(player_id: int):
     if relation is None:
         return None
     return teams_repo.get_team_by_id(relation.team_id)
+
+def get_player_stats(id_player: int, season=None):
+    return players_repo.get_stats(id_player, season)

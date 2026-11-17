@@ -33,7 +33,10 @@ def get_bracket(season: int, phase: str, bracket_group: int):
 
 @router.get("/matchday/{matchday}")
 def get_matches_by_matchday(matchday: int, season: int):
-    return match_service.get_matches_by_matchday(matchday,season)
+    try:
+        return match_service.get_matches_by_matchday(matchday, season)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/season/{season_id}/top-scorers")
 def get_top_scorers(season_id: int):
