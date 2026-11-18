@@ -3,7 +3,7 @@ from repositories.repository_instances import (
     coach_x_team_repo,
     teams_repo
 )
-
+from schemas.coach_schema import CoachUpdate,CoachCreate
 from entities.coach import Coach
 
 def get_coaches():
@@ -14,35 +14,18 @@ def get_coach_by_id(id_coach: int):
     return coaches_repo.get_by_id(id_coach)
 
 
-def create_coach(coach: dict):
-
-    if "id" not in coach or "name" not in coach:
-        raise ValueError("Missing required fields")
-
-    new_coach = Coach(
-        id_coach=coach["id"],
-        name=coach["name"]
-    )
-
+def create_coach(coach: CoachCreate):
+    new_coach = Coach(id_coach=coach.dni,name=coach.name)
     return coaches_repo.create(new_coach)
 
-
-def put_coach(id_coach: int, updated_coach: dict):
-
+def put_coach(id_coach: int, updated_coach: CoachUpdate):
     if "name" not in updated_coach:
         raise ValueError("Missing required fields")
-
-    coach = Coach(
-        id_coach=id_coach,
-        name=updated_coach["name"]
-    )
-
+    coach = Coach(id_coach=id_coach,name=updated_coach["name"])
     return coaches_repo.update_full(id_coach, coach)
-
 
 def patch_coach(id_coach: int, name=None):
     return coaches_repo.update_partial(id_coach, name)
-
 
 def delete_coach(id_coach: int):
     return coaches_repo.delete(id_coach)

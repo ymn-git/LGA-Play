@@ -37,6 +37,7 @@ class Match(Base):
         self.scorers = []
         self.yellow_cards = []
         self.red_cards = []
+
     @property
     def result(self):
         if self.goalsA == self.goalsB:

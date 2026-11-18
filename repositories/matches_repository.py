@@ -1,6 +1,5 @@
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
-
 from entities.match import Match
 from entities.goal import Goal
 from entities.card import Card

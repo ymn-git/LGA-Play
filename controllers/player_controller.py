@@ -5,6 +5,7 @@ from typing import Optional
 from services import player_service
 from security.jwt_service import get_current_user
 from models.user import User
+from schemas.player_schema import PlayerCreate,PlayerUpdate
 
 router = APIRouter(prefix="/players")
 
@@ -29,15 +30,15 @@ def get_current_team_of_player(player_id: int):
 
 
 @router.post("")
-def create_player(player: dict, current_user: User = Depends(get_current_user)):
+def create_player(player: PlayerCreate,current_user: User = Depends(get_current_user)):
     try:
         return player_service.create_player(player)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=400,detail=str(e))
 
 
 @router.put("/{id_player}")
-def put_player(id_player: int, new_player: dict, current_user: User = Depends(get_current_user)):
+def put_player(id_player: int, new_player: PlayerUpdate,current_user: User = Depends(get_current_user)):
     try:
         return player_service.put_player(id_player, new_player)
     except ValueError as e:

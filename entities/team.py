@@ -6,5 +6,5 @@ class Team(Base):
     __tablename__ = "teams"
 
     id_team = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String(100), nullable=False, unique=True)
     shield_url = Column(String, nullable=True)

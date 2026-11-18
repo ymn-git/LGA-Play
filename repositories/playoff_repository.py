@@ -32,6 +32,23 @@ class PlayoffRepository:
 
         return playoff
 
+    def update_penalties(
+            self,
+            match_id: int,
+            penaltiesA: int,
+            penaltiesB: int
+    ):
+        playoff = (
+            self.db.query(Playoff).filter(Playoff.match_id == match_id).first()
+        )
+        if playoff is None:
+            raise ValueError("Playoff match not found")
+        playoff.penaltiesA = penaltiesA
+        playoff.penaltiesB = penaltiesB
+        self.db.commit()
+        self.db.refresh(playoff)
+        return playoff
+
     def leg_exists(
         self,
         season: int,

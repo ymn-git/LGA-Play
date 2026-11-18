@@ -134,11 +134,36 @@ def get_playoff_bracket(
 
     return [p.match for p in playoffs]
 
+def create_match(
+    season,
+    matchday,
+    team_a_id,
+    team_b_id,
+    full_date
+):
+
+    if team_a_id == team_b_id:
+        raise ValueError(
+            "Un equipo no puede jugar contra sí mismo"
+        )
+
+    match = matches_repo.add(
+        team_a_id,
+        team_b_id,
+        matchday,
+        season,
+        full_date
+    )
+
+    matches_repo.db.commit()
+
+    return matches_repo.get_match_by_id(
+        match.id_match
+    )
+
 SINGLE_LEG_PHASES = {"final", "finalisima"}
 
-
 def create_playoff_match(
-
     season,
     phase,
     bracket_group,
@@ -152,21 +177,107 @@ def create_playoff_match(
     if leg not in (1, 2):
         raise ValueError("leg debe ser 1 o 2")
 
-        if phase in SINGLE_LEG_PHASES and leg != 1:
-            raise ValueError(f"{phase} es partido único (leg=1)")
+    if phase in SINGLE_LEG_PHASES and leg != 1:
+        raise ValueError(f"{phase} es partido único (leg=1)")
 
-        if team_a_id == team_b_id:
-            raise ValueError("Un equipo no puede jugar contra sí mismo")
-        if playoff_repo.leg_exists(season, phase, bracket_group, leg):
-            raise ValueError("Ya existe ese partido en la llave")
 
-        try:
-            match = matches_repo.add(team_a_id, team_b_id, matchday, season, full_date)
-            playoff_repo.add(match.id_match, season, phase, bracket_group, leg)
-            matches_repo.db.commit()
+    if team_a_id == team_b_id:
+        raise ValueError("Un equipo no puede jugar contra sí mismo")
 
-        except Exception:
-            matches_repo.db.rollback()
-            raise
+    if playoff_repo.leg_exists(
+        season,
+        phase,
+        bracket_group,
+        leg
+    ):
+        raise ValueError("Ya existe ese partido en la llave")
 
-    return matches_repo.get_match_by_id(match.id_match)
+    existing_matches = playoff_repo.get_by_bracket(
+        season,
+        phase,
+        bracket_group
+    )
+
+    # No permitir vuelta sin ida
+    if leg == 2 and not existing_matches:
+        raise ValueError("No puede existir una vuelta sin ida previa")
+
+    # Si ya existe la ida, validar que la vuelta tenga los mismos equipos
+    if existing_matches:
+
+        ida = next((p for p in existing_matches if p.leg == 1),None)
+        if leg == 2 and ida:
+
+            if (
+                    ida.match.teamA_id != team_b_id
+                    or
+                    ida.match.teamB_id != team_a_id
+            ):
+                raise ValueError(
+                    "La vuelta debe invertir las localías de la ida"
+                )
+        if ida:
+            equipos_ida = {
+                ida.match.teamA_id,
+                ida.match.teamB_id
+            }
+
+            equipos_nuevos = {
+                team_a_id,
+                team_b_id
+            }
+
+            if equipos_ida != equipos_nuevos:
+                raise ValueError(
+                    "La vuelta debe involucrar los mismos equipos que la ida"
+                )
+
+    try:
+
+        match = matches_repo.add(
+            team_a_id,
+            team_b_id,
+            matchday,
+            season,
+            full_date
+        )
+
+        playoff_repo.add(
+            match.id_match,
+            season,
+            phase,
+            bracket_group,
+            leg
+        )
+
+        matches_repo.db.commit()
+
+    except Exception:
+        matches_repo.db.rollback()
+        raise
+
+    return matches_repo.get_match_by_id(
+        match.id_match
+    )
+
+def update_playoff_penalties(
+    match_id: int,
+    penaltiesA: int,
+    penaltiesB: int
+):
+
+    if penaltiesA < 0 or penaltiesB < 0:
+        raise ValueError(
+            "Los penales no pueden ser negativos"
+        )
+
+    if penaltiesA == penaltiesB:
+        raise ValueError(
+            "Una definición por penales no puede terminar empatada"
+        )
+
+    return playoff_repo.update_penalties(
+        match_id,
+        penaltiesA,
+        penaltiesB
+    )

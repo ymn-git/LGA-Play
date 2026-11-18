@@ -14,3 +14,7 @@ class PlayoffMatchCreate(BaseModel):
 
     full_date: datetime
 
+class PenaltyResultUpdate(BaseModel):
+    penaltiesA: int
+    penaltiesB: int
+

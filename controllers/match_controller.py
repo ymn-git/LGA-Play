@@ -1,14 +1,28 @@
 from fastapi import APIRouter, HTTPException
 from services import match_service
-from schemas.match_schema import MatchResultUpdate
+from schemas.match_schema import MatchResultUpdate, MatchCreate
 from fastapi import Depends
 from security.jwt_service import get_current_user
 from models.user import User
 from sqlalchemy.orm import Session
-from schemas.playoff_schema import PlayoffMatchCreate
+from schemas.playoff_schema import PlayoffMatchCreate, PenaltyResultUpdate
+
+
 from app.database import get_db
 
 router = APIRouter(prefix="/matches")
+@router.post("", status_code=201)
+def create_match(data: MatchCreate,current_user: User = Depends(get_current_user)):
+    try:
+        return match_service.create_match(
+            data.season,
+            data.matchday,
+            data.team_a_id,
+            data.team_b_id,
+            data.full_date
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400,detail=str(e))
 
 @router.post("/playoffs", status_code=201)
 def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db),
@@ -22,6 +36,17 @@ def create_playoff(data: PlayoffMatchCreate, db: Session = Depends(get_db),
         raise HTTPException(status_code=409, detail=str(e))
     return match_service.with_score(match)
 
+@router.patch("/playoffs/{match_id}/penalties")
+def update_playoff_penalties(match_id: int,payload: PenaltyResultUpdate,
+                             current_user: User = Depends(get_current_user)):
+    try:
+        return match_service.update_playoff_penalties(
+            match_id,
+            payload.penaltiesA,
+            payload.penaltiesB
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400,detail=str(e))
 
 @router.get("/playoffs/{season}/{phase}/{bracket_group}")
 def get_bracket(season: int, phase: str, bracket_group: int):
