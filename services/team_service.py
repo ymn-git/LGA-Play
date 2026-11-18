@@ -9,8 +9,8 @@ def get_all_teams():
 def get_team_by_id(id_team: int):
     return teams_repo.get_team_by_id(id_team)
 
-def create_team(team:TeamCreate):
-    return teams_repo.create_team(team)
+def create_team(team: TeamCreate):
+    return teams_repo.create_team(team.name)
 
 def update_team_name(id_team: int,updated_team: TeamUpdate):
     return teams_repo.update_team_name(id_team,updated_team.name)

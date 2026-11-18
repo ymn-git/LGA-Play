@@ -18,11 +18,9 @@ def create_coach(coach: CoachCreate):
     new_coach = Coach(id_coach=coach.dni,name=coach.name)
     return coaches_repo.create(new_coach)
 
-def put_coach(id_coach: int, updated_coach: CoachUpdate):
-    if "name" not in updated_coach:
-        raise ValueError("Missing required fields")
-    coach = Coach(id_coach=id_coach,name=updated_coach["name"])
-    return coaches_repo.update_full(id_coach, coach)
+def put_coach(id_coach: int,updated_coach: CoachUpdate):
+    coach = Coach(id_coach=id_coach,name=updated_coach.name)
+    return coaches_repo.update_full(id_coach,coach)
 
 def patch_coach(id_coach: int, name=None):
     return coaches_repo.update_partial(id_coach, name)
