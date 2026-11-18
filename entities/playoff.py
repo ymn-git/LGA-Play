@@ -27,7 +27,7 @@ class Playoff(Base):
     season = Column(Integer, nullable=False, index=True)
 
     phase = Column(
-        String,
+        String(50),
         nullable=False,
         index=True
     )
@@ -43,4 +43,17 @@ class Playoff(Base):
         default=1
     )
 
-    match = relationship("Match",lazy="joined")
+    penaltiesA = Column(
+        Integer,
+        nullable=True
+    )
+
+    penaltiesB = Column(
+        Integer,
+        nullable=True
+    )
+
+    match = relationship(
+        "Match",
+        lazy="joined"
+    )

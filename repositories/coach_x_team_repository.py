@@ -8,17 +8,18 @@ class CoachXTeamsRepository:
         self.db = db
 
     def assign_coach(self, coach_id: int, team_id: int):
+        active_relation = self.get_active_team(coach_id)
+        if active_relation:
+            raise ValueError("Coach already has an active team")
 
         relation = CoachXTeam(
             coach_id=coach_id,
             team_id=team_id,
             active=True
         )
-
         self.db.add(relation)
         self.db.commit()
         self.db.refresh(relation)
-
         return relation
 
     def get_active_team(self, coach_id: int):
@@ -27,7 +28,7 @@ class CoachXTeamsRepository:
             self.db.query(CoachXTeam)
             .filter(
                 CoachXTeam.coach_id == coach_id,
-                CoachXTeam.active == True
+                CoachXTeam.active.is_(True)
             )
             .first()
         )
@@ -52,7 +53,7 @@ class CoachXTeamsRepository:
             self.db.query(CoachXTeam)
             .filter(
                 CoachXTeam.team_id == team_id,
-                CoachXTeam.active == True
+                CoachXTeam.active.is_(True)
             )
             .all()
         )

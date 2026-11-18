@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+
+from schemas.team_schema import TeamCreate, TeamUpdate
 from services import team_service
 from fastapi import Depends
 from security.jwt_service import get_current_user
@@ -47,18 +49,18 @@ def assign_coach_to_team(team_id: int,coach_id: int, current_user: User = Depend
         raise HTTPException(status_code=400,detail=str(e))
 
 @router.post("")
-def create_team(team: dict, current_user: User = Depends(get_current_user)):
+def create_team(team: TeamCreate,current_user: User = Depends(get_current_user)):
     try:
         return team_service.create_team(team)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/{id_team}")
-def update_team_name(id_team: int, new_name: str, current_user: User = Depends(get_current_user)):
+def update_team_name(id_team: int, updated_team: TeamUpdate, current_user: User = Depends(get_current_user)):
     try:
-        return team_service.update_team_name(id_team, new_name)
+        return team_service.update_team_name(id_team, updated_team)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{id_team}")
 def delete_team(id_team: int, current_user: User = Depends(get_current_user)):

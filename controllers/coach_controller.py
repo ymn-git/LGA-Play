@@ -4,6 +4,7 @@ from typing import Optional
 from security.jwt_service import get_current_user
 from models.user import User
 from fastapi import Depends
+from schemas.coach_schema import CoachUpdate,CoachCreate
 
 
 router = APIRouter(prefix="/coaches",)
@@ -20,14 +21,14 @@ def get_current_team_of_coach(coach_id: int):
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.post("")
-def create_coach(coach: dict, current_user: User = Depends(get_current_user)):
+def create_coach(coach: CoachCreate,current_user: User = Depends(get_current_user)):
     try:
         return coach_service.create_coach(coach)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.put("/{id_coach}")
-def put_coach(id_coach: int, new_coach: dict, current_user: User = Depends(get_current_user)):
+def put_coach(id_coach: int, new_coach:CoachUpdate,current_user: User = Depends(get_current_user)):
     try:
         return coach_service.put_coach(id_coach, new_coach)
     except ValueError as e:

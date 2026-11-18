@@ -9,4 +9,4 @@ class Card(Base):
     id_match = Column(Integer, ForeignKey("matches.id_match"))
     id_player = Column(Integer, ForeignKey("players.id_player"))
 
-    type = Column(String, nullable=False)
+    type = Column(String(20), nullable=False)
