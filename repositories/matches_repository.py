@@ -72,11 +72,6 @@ class MatchesRepository:
             .all()
         )
 
-        if not matches:
-            raise ValueError(
-                f"No matches found for matchday {matchday}"
-            )
-
         return [
             self._load_extras(match)
             for match in matches

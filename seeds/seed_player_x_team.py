@@ -1,5 +1,7 @@
 from app.database import SessionLocal
 from entities.player_x_team import PlayerXTeam
+from entities.player import Player
+from entities.team import Team
 
 db = SessionLocal()
 

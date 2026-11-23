@@ -1,16 +1,19 @@
 from app.database import SessionLocal
+
+from entities.team import Team
+from entities.coach import Coach
 from entities.coach_x_team import CoachXTeam
 
 db = SessionLocal()
 
 relations = [
-
+# ESTA COMENTADO PORQUE LO CARGUE DESDE SWAGGER
     # AMIGOS_UNIDOS
-    CoachXTeam(
-        coach_id=29303884,
-        team_id=3,
-        active=True
-    ),
+    #CoachXTeam(
+     #   coach_id=29303884,
+      #  team_id=3,
+       # active=True
+    #),
 
     # DEFENSORES
     CoachXTeam(
@@ -90,7 +93,21 @@ relations = [
     ),
 ]
 
-db.add_all(relations)
+for relation in relations:
+
+    exists = (
+        db.query(CoachXTeam)
+        .filter(
+            CoachXTeam.coach_id == relation.coach_id,
+            CoachXTeam.team_id == relation.team_id,
+            CoachXTeam.active == True
+        )
+        .first()
+    )
+
+    if not exists:
+        db.add(relation)
+
 db.commit()
 db.close()
 

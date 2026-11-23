@@ -4,18 +4,18 @@ from entities.team import Team
 db = SessionLocal()
 
 team_names = [
-    "Defensores",
-    "Juventud_Unida",
-    "Amigos_Unidos",
-    "Quilmes",
-    "Polvorin",
-    "Los_Santos",
-    "San_Martin",
-    "Once_Unidos",
-    "Huracanes",
-    "Defensores_del_Sur",
-    "Sud_America",
-    "Atletico_Miramar",
+# NO PUSE DEFENSORES PORQUE LO CARGUE MANUALMENTE DESDE SWAGGER ASI NO SE DUPLICA EL REGISTRO
+    "JUVENTUD UNIDA",
+    "AMIGOS UNIDOS",
+    "QUILMES",
+    "POLVORIN",
+    "LOS SANTOS",
+    "SAN MARTIN",
+    "ONCE UNIDOS",
+    "HURACANES",
+    "DEFENSORES DEL SUR",
+    "SUD AMERICA",
+    "ATLETICO MIRAMAR",
 ]
 
 for name in team_names:

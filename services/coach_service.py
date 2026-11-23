@@ -1,42 +1,120 @@
-from repositories.repository_instances import (
-    coaches_repo,
-    coach_x_team_repo,
-    teams_repo
-)
-from schemas.coach_schema import CoachUpdate,CoachCreate
+from sqlalchemy.orm import Session
+
 from entities.coach import Coach
 
-def get_coaches():
+from schemas.coach_schema import (
+    CoachCreate,
+    CoachUpdate
+)
+
+from repositories.coaches_repository import CoachesRepository
+from repositories.coach_x_team_repository import CoachXTeamsRepository
+from repositories.teams_repository import TeamsRepository
+
+
+def get_coaches(
+    db: Session
+):
+
+    coaches_repo = CoachesRepository(db)
+
     return coaches_repo.get_all()
 
 
-def get_coach_by_id(id_coach: int):
-    return coaches_repo.get_by_id(id_coach)
+def get_coach_by_id(
+    id_coach: int,
+    db: Session
+):
+
+    coaches_repo = CoachesRepository(db)
+
+    return coaches_repo.get_by_id(
+        id_coach
+    )
 
 
-def create_coach(coach: CoachCreate):
-    new_coach = Coach(id_coach=coach.dni,name=coach.name)
-    return coaches_repo.create(new_coach)
+def create_coach(
+    coach: CoachCreate,
+    db: Session
+):
 
-def put_coach(id_coach: int,updated_coach: CoachUpdate):
-    coach = Coach(id_coach=id_coach,name=updated_coach.name)
-    return coaches_repo.update_full(id_coach,coach)
+    coaches_repo = CoachesRepository(db)
 
-def patch_coach(id_coach: int, name=None):
-    return coaches_repo.update_partial(id_coach, name)
+    new_coach = Coach(
+        id_coach=coach.dni,
+        name=coach.name
+    )
 
-def delete_coach(id_coach: int):
-    return coaches_repo.delete(id_coach)
+    return coaches_repo.create(
+        new_coach
+    )
 
 
-def transfer_coach(coach_id: int, new_team_id: int):
+def put_coach(
+    id_coach: int,
+    updated_coach: CoachUpdate,
+    db: Session
+):
 
-    current_team = coach_x_team_repo.get_active_team(coach_id)
+    coaches_repo = CoachesRepository(db)
+
+    coach = Coach(
+        id_coach=id_coach,
+        name=updated_coach.name
+    )
+
+    return coaches_repo.update_full(
+        id_coach,
+        coach
+    )
+
+
+def patch_coach(
+    id_coach: int,
+    name=None,
+    db: Session = None
+):
+
+    coaches_repo = CoachesRepository(db)
+
+    return coaches_repo.update_partial(
+        id_coach,
+        name
+    )
+
+
+def delete_coach(
+    id_coach: int,
+    db: Session
+):
+
+    coaches_repo = CoachesRepository(db)
+
+    return coaches_repo.delete(
+        id_coach
+    )
+
+
+def transfer_coach(
+    coach_id: int,
+    new_team_id: int,
+    db: Session
+):
+
+    coach_x_team_repo = CoachXTeamsRepository(db)
+
+    current_team = coach_x_team_repo.get_active_team(
+        coach_id
+    )
 
     if current_team is None:
-        raise ValueError("Coach has no active team")
+        raise ValueError(
+            "Coach has no active team"
+        )
 
-    coach_x_team_repo.deactivate_relation(coach_id)
+    coach_x_team_repo.deactivate_relation(
+        coach_id
+    )
 
     return coach_x_team_repo.assign_coach(
         coach_id,
@@ -44,9 +122,17 @@ def transfer_coach(coach_id: int, new_team_id: int):
     )
 
 
-def get_current_team_of_coach(coach_id: int):
+def get_current_team_of_coach(
+    coach_id: int,
+    db: Session
+):
 
-    relation = coach_x_team_repo.get_active_team(coach_id)
+    coach_x_team_repo = CoachXTeamsRepository(db)
+    teams_repo = TeamsRepository(db)
+
+    relation = coach_x_team_repo.get_active_team(
+        coach_id
+    )
 
     if relation is None:
         return None
