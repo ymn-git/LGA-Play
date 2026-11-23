@@ -5,6 +5,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+
 // Clave utilizada para guardar el token de autenticación.
 const TOKEN_KEY = "lga_access_token";
 

@@ -28,10 +28,11 @@
   border-radius: 10px;
 }
 
-.equipo-detalle__encabezado div {
-  flex: 1;
+.equipo-detalle__encabezado > div:not(.equipo-detalle__puntos) {
+  flex: 0.85;
   min-width: 0;
 }
+
 
 .equipo-detalle__encabezado h3,
 .equipo-detalle__encabezado p {
@@ -291,4 +292,17 @@
   .equipo-detalle__admin {
     padding: 12px;
   }
+
+  
+.equipo-detalle__puntos {
+  transform: translateX(-50px);
+  font-size: 48px !important;
+  font-weight: 900 !important;
+  line-height: 1;
+  color: var(--verde-oscuro);
+  white-space: nowrap;
+}
+
+
+
 }

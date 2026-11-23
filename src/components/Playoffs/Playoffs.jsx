@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
-import { getTeams } from "../../services/teamsService";
+import { getStandings } from "../../services/teamsService";
 import "./Playoffs.css";
 
 // Ordena los equipos según los criterios de clasificación:
 // primero puntos, después diferencia de gol y finalmente partidos ganados.
 
-function ordenarEquipos(equipos) {
-  return [...equipos].sort((a, b) => {
-    if (b._points !== a._points) {
-      return b._points - a._points;
-    }
-
-    if (b._goalDifference !== a._goalDifference) {
-      return b._goalDifference - a._goalDifference;
-    }
-
-    return b.wins - a.wins;
-  });
-}
 
 function Partido({ equipoA, equipoB }) {
   return (
@@ -40,21 +27,17 @@ function Playoffs() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    getTeams()
-      .then((data) => {
-        const ordenados = ordenarEquipos(data);
-
-        // 16 equipos para:
-        // Primera ronda → Cuartos → Semifinal → Final
-        setEquipos(ordenados.slice(0, 16));
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => {
-        setCargando(false);
-      });
-  }, []);
+  getStandings(2026)
+    .then((data) => {
+      setEquipos(data.slice(0, 8));
+    })
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      setCargando(false);
+    });
+}, []);
 
   if (cargando) {
     return <p>Cargando playoffs...</p>;
@@ -62,31 +45,12 @@ function Playoffs() {
 
   const nombres = equipos.map((equipo) => equipo.name);
 
-  // Completar lugares si todavía no hay 16 equipos
-  while (nombres.length < 16) {
+  // Completar lugares si todavía no hay 8 equipos
+  while (nombres.length < 8) {
     nombres.push("Por definir");
   }
 
-  /*
-   * =========================
-   * PRIMERA RONDA
-   * =========================
-   *
-   * 16 equipos
-   * 8 partidos
-   */
-
-  const primeraRonda = [
-    [nombres[0], nombres[15]],
-    [nombres[7], nombres[8]],
-    [nombres[3], nombres[12]],
-    [nombres[4], nombres[11]],
-    [nombres[1], nombres[14]],
-    [nombres[6], nombres[9]],
-    [nombres[2], nombres[13]],
-    [nombres[5], nombres[10]],
-  ];
-
+  
   /*
    * =========================
    * CUARTOS
@@ -94,14 +58,21 @@ function Playoffs() {
    *
    * 8 ganadores
    * 4 partidos
-   */
-
-  const cuartos = [
+   * const cuartos = [
     ["Ganador 1", "Ganador 2"],
     ["Ganador 3", "Ganador 4"],
     ["Ganador 5", "Ganador 6"],
     ["Ganador 7", "Ganador 8"],
   ];
+   */
+
+  
+  const cuartos = [
+  [nombres[0], nombres[7]],
+  [nombres[3], nombres[4]],
+  [nombres[1], nombres[6]],
+  [nombres[2], nombres[5]],
+];
 
   /*
    * =========================
@@ -138,32 +109,13 @@ function Playoffs() {
           <p>El camino hacia la Final&iacute;sima</p>
         </div>
 
-        <span className="playoffs__badge">16 equipos</span>
+        <span className="playoffs__badge">8 equipos</span>
       </div>
 
 
       <div className="playoffs__cuadro">
 
-        {/* =========================
-            PRIMERA RONDA
-            16 → 8
-            ========================= */}
-
-        <div className="playoffs__ronda ronda-primera">
-          <h3>Primera ronda</h3>
-
-          <div className="ronda__partidos">
-            {primeraRonda.map((partido, index) => (
-              <Partido
-                key={index}
-                equipoA={partido[0]}
-                equipoB={partido[1]}
-              />
-            ))}
-          </div>
-        </div>
-
-
+        
         {/* =========================
             CUARTOS
             8 → 4

@@ -56,12 +56,14 @@ function CargarFecha({ temporada }) {
       ];
 
       const jugadoresEquipos = await Promise.all(
+        
         equiposIds.map(async (teamId) => [
           teamId,
           await getTeamPlayers(teamId),
         ])
+        
       );
-
+      console.log("JUGADORES POR EQUIPO", jugadoresEquipos);
       setJugadoresPorEquipo(Object.fromEntries(jugadoresEquipos));
 
       setPartidosBloqueados(

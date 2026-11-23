@@ -28,29 +28,40 @@ function Goleadores({ temporada }) {
   if (goleadores.length === 0) {
     return <p>No hay goleadores registrados.</p>;
   }
+  const maxGoles = goleadores[0].goals;
 
+  const lideres = goleadores.filter(
+    (jugador) => jugador.goals === maxGoles
+  );
+  const goleadoresConPosicion = goleadores.map((jugador) => {
+
+  const posicion =
+    goleadores.filter(
+      (otro) => otro.goals > jugador.goals
+    ).length + 1;
+
+  return {
+    ...jugador,
+    posicion,
+  };
+});
   const lider = goleadores[0];
 
   return (
     <div className="goleadores">
-      <section className="botin-oro">
-        <span>👟</span>
-
-        <div>
-          <p>Botín de Oro provisional</p>
-          <strong>{lider.name}</strong>
-        </div>
-
-        <b>{lider.goals} goles</b>
-      </section>
+      
 
       <div className="tabla-goleadores">
-        {goleadores.map((jugador, index) => (
+        {goleadoresConPosicion.map((jugador) => (
           <article
             key={jugador.id}
-            className="fila-goleador"
-          >
-            <span>{index + 1}°</span>
+            className={`fila-goleador ${
+            jugador.goals === maxGoles
+            ? "fila-goleador--lider"
+            : ""
+            }`}
+            >
+            <span>{jugador.posicion}°</span>
             <strong>{jugador.name}</strong>
             <span>{jugador.position}</span>
             <b>{jugador.goals} goles</b>

@@ -232,18 +232,22 @@ function EquipoDetalle({ esAdmin }) {
       <Panel titulo="Ficha del equipo">
         <section className="equipo-detalle">
           <header className="equipo-detalle__encabezado">
-            <IdentidadEquipo
-              teamId={equipo.id_team}
-              teamName={equipo.name}
-            />
+  <IdentidadEquipo
+    teamId={equipo.id_team}
+    teamName={equipo.name}
+  />
 
-            <div>
-              <h3>{equipo.name}</h3>
-              <p>
-                Posición {estadisticas.position} · Temporada {temporada}
-              </p>
-            </div>
-          </header>
+  <div>
+    <h3>{equipo.name}</h3>
+    <p>
+      Posición {estadisticas.position} · Temporada {temporada}
+    </p>
+  </div>
+
+  <div className="equipo-detalle__puntos">
+    {estadisticas.points} pts
+  </div>
+</header>
 
           <div className="equipo-detalle__estadisticas">
             <span><small>PJ</small>{estadisticas.played}</span>
@@ -251,6 +255,7 @@ function EquipoDetalle({ esAdmin }) {
             <span><small>PE</small>{estadisticas.draws}</span>
             <span><small>PP</small>{estadisticas.losses}</span>
             <span><small>DG</small>{estadisticas.goal_difference}</span>
+            
           </div>
 
           <div className="equipo-detalle__entrenador">

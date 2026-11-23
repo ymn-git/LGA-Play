@@ -62,7 +62,7 @@ function Partidos({ temporada }) {
         >
           <option value="todas">Todas las fechas</option>
 
-          {Array.from({ length: 22 }, (_, index) => (
+          {Array.from({ length: 16 }, (_, index) => (
             <option key={index + 1} value={index + 1}>
               Fecha {index + 1}
             </option>

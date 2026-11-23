@@ -5,7 +5,7 @@ import { getTeams } from "./teamsService";
 
 export async function getMatches(season) {
   const fechas = await Promise.all(
-    Array.from({ length: 22 }, (_, i) =>
+    Array.from({ length: 16 }, (_, i) =>
       apiRequest(ENDPOINTS.matchday(i + 1, season))
     )
   );

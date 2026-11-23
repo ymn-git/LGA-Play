@@ -89,3 +89,19 @@
     display: none;
   }
 }
+
+.fila-goleador--lider {
+  background: linear-gradient(
+    90deg,
+    #fff8dc,
+    #ffe082
+  );
+
+  border: 2px solid #f59e0b;
+}
+
+.fila-goleador--lider strong::after {
+  content: " 👟 Botín de Oro";
+  color: #b45309;
+  font-size: 12px;
+}

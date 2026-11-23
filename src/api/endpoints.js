@@ -15,6 +15,7 @@ export const ENDPOINTS = {
   matchById: (id) => `/matches/${id}`,
   topScorers: (seasonId) => `/matches/season/${seasonId}/top-scorers`,
   standings: (season) => `/matches/standings/${season}`,
+
   qualified: (season) => `/matches/qualified/${season}`,
   nextMatches: (season) => `/matches/next?season=${season}`,
   playoffs: "/matches/playoffs",
